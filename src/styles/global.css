@@ -5,8 +5,8 @@
 
 /* 1.0 FONTS
 
-   Nunito Sans (variable), self-hosted via @fontsource and imported in
-   Base.astro. Stand-in for Avenir until the title font is settled. */
+   Self-hosted via @fontsource, imported in Base.astro. Barlow Condensed
+   700 for the site title; Nunito Sans (variable) for everything else. */
 
 /* 1.1 BOX SIZING */
 
@@ -125,6 +125,7 @@ summary:focus-visible,
 
   --font-body: 'Nunito Sans Variable', 'Avenir Next', avenir, system-ui, -apple-system, 'Segoe UI', sans-serif;
   --font-display: var(--font-body);
+  --font-title: 'Barlow Condensed', 'Arial Narrow', var(--font-body);
   --font-mono: ui-monospace, 'Cascadia Mono', consolas, 'Courier New', monospace;
 
   /* Type scale. Every font-size resolves to one of these. */
@@ -132,8 +133,8 @@ summary:focus-visible,
   --fs-sm: 0.875rem;   /* 14px - captions, code */
   --fs-md: 1rem;       /* 16px - UI text */
   --fs-lg: 1.125rem;   /* 18px - article body */
-  --fs-xl: 1.5rem;     /* 24px - site title, h3 */
-  --fs-2xl: 2rem;      /* 32px - list titles, h2 */
+  --fs-xl: 1.5rem;     /* 24px - h3 */
+  --fs-2xl: 2rem;      /* 32px - site title, list titles, h2 */
   --fs-3xl: clamp(2.25rem, 6vw, 3.25rem); /* post title */
 }
 
@@ -222,11 +223,11 @@ summary:focus-visible,
 }
 
 .site-title {
-  font-family: var(--font-display);
-  font-size: var(--fs-xl);
-  font-weight: 900;
+  font-family: var(--font-title);
+  font-size: var(--fs-2xl);
+  font-weight: 700;
   line-height: 1;
-  letter-spacing: 0.03em;
+  letter-spacing: 0.02em;
   text-transform: uppercase;
 }
 
