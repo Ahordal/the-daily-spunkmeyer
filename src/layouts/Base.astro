@@ -10,15 +10,20 @@ const siteName = 'The Daily Spunkmeyer';
 <html lang="en">
   <head>
     <meta charset="utf-8" />
+    <!-- .ico first so browsers that support SVG favicons still pick the SVG. -->
+    <link rel="icon" href="/favicon.ico" sizes="48x48" />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-    <link rel="icon" href="/favicon.ico" />
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
     <meta name="viewport" content="width=device-width" />
     <meta name="generator" content={Astro.generator} />
     <title>{title ? `${title} | ${siteName}` : siteName}</title>
   </head>
   <body>
     <header>
-      <a href="/">{siteName}</a>
+      <a href="/">
+        <img src="/logo.svg" alt="" width="40" height="40" />
+        {siteName}
+      </a>
     </header>
     <main>
       <slot />
