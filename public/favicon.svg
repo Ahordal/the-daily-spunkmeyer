@@ -1,12 +1,10 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="10 7 180 180">
-  <!-- Logo minus the star, which turns to a smudge at tab size. -->
-  <g stroke="#FFFFFF" stroke-linejoin="miter" paint-order="stroke">
-    <polygon points="100.00,28.00 162.35,136.00 127.71,136.00 82.68,58.00" fill="#E8222B" stroke-width="7"/>
-    <polygon points="100.00,58.00 145.03,136.00 127.71,136.00 91.34,73.00" fill="#232F78" stroke-width="3"/>
-    <polygon points="179.67,166.00 54.97,166.00 72.29,136.00 162.35,136.00" fill="#E8222B" stroke-width="7"/>
-    <polygon points="153.69,151.00 63.63,151.00 72.29,136.00 145.03,136.00" fill="#232F78" stroke-width="3"/>
-    <polygon points="20.33,166.00 82.68,58.00 100.00,88.00 54.97,166.00" fill="#E8222B" stroke-width="7"/>
-    <polygon points="46.31,151.00 91.34,73.00 100.00,88.00 63.63,151.00" fill="#232F78" stroke-width="3"/>
-  </g>
-  <polygon points="100,88 127.71,136 72.29,136" fill="#FFFFFF"/>
+  <!-- White ground shows through as the edge and seams; every gap is the same width. -->
+  <polygon points="100,24 183.14,168 16.86,168" fill="#FFFFFF"/>
+    <polygon points="100,32 158.89,134 146.19,134 100,54 91.34,69 84.99,58" fill="#E8222B"/>
+    <polygon points="100,62 141.57,134 128.87,134 93.65,73" fill="#232F78"/>
+    <polygon points="176.21,164 58.43,164 64.78,153 157.16,153 148.5,138 161.2,138" fill="#E8222B"/>
+    <polygon points="150.23,149 67.09,149 73.44,138 143.88,138" fill="#232F78"/>
+    <polygon points="23.79,164 82.68,62 89.03,73 42.84,153 60.16,153 53.81,164" fill="#E8222B"/>
+    <polygon points="49.77,149 91.34,77 97.69,88 62.47,149" fill="#232F78"/>
 </svg>
