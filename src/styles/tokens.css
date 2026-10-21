@@ -10,6 +10,8 @@
   --panel: #ffffff;
   --panel-alt: #e6e7ee;
   --ink: #15182b;
+  /* Site title in the header; each mode uses the other mode's background. */
+  --title: #0b0e1c;
   --muted: #5a5e70;
   --rule: #c8cad6;
   --accent: #c8202a;
@@ -21,6 +23,7 @@
     --panel: #141830;
     --panel-alt: #1b2040;
     --ink: #e7e8f0;
+    --title: #e7e8f0;
     --muted: #9a9db2;
     --rule: #2a2f4a;
     --accent: #f2474e;
@@ -34,6 +37,7 @@
   --panel: #141830;
   --panel-alt: #1b2040;
   --ink: #e7e8f0;
+  --title: #e7e8f0;
   --muted: #9a9db2;
   --rule: #2a2f4a;
   --accent: #f2474e;
