@@ -25,3 +25,6 @@ pnpm-debug.log*
 
 # vercel adapter output
 .vercel/
+
+# local to-do list
+Daily_Spunkmeyer_TO-DOs.txt
