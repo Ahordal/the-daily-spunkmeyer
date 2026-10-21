@@ -1,11 +1,12 @@
-/* Colour tokens, from the logo concepts page. Dark bg and both panels are locked; panel roles still TBD. */
+/* Colour tokens, from the logo concepts page. Both bgs and dark panels are locked; panel roles still TBD. */
 :root {
   /* Brand: the logo's own colours, same in both themes. */
   --brand-red: #e8222b;
   --brand-navy: #232f78;
   --brand-panel: #e6e7ee;
 
-  --bg: #ecedf2;
+  /* Matches the logo's light ground, so its seams read as cut-outs. */
+  --bg: #e7e8f0;
   --panel: #ffffff;
   --panel-alt: #e6e7ee;
   --ink: #15182b;

@@ -1,6 +1,6 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="10 7 180 180">
-  <!-- White ground shows through as the edge and seams; every gap is the same width. -->
-  <polygon points="100,24 183.14,168 16.86,168" fill="#FFFFFF"/>
+  <!-- Light ground shows through as the edge and seams; every gap is the same width. -->
+  <polygon points="100,24 183.14,168 16.86,168" fill="#E7E8F0"/>
     <polygon points="100,32 158.89,134 146.19,134 100,54 91.34,69 84.99,58" fill="#E8222B"/>
     <polygon points="100,62 141.57,134 128.87,134 93.65,73" fill="#232F78"/>
     <polygon points="176.21,164 58.43,164 64.78,153 157.16,153 148.5,138 161.2,138" fill="#E8222B"/>
