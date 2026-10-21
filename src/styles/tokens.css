@@ -1,0 +1,40 @@
+/* Colour tokens, from the logo concepts page. Dark bg and both panels are locked; panel roles still TBD. */
+:root {
+  /* Brand: the logo's own colours, same in both themes. */
+  --brand-red: #e8222b;
+  --brand-navy: #232f78;
+  --brand-panel: #e6e7ee;
+
+  --bg: #ecedf2;
+  --panel: #ffffff;
+  --panel-alt: #e6e7ee;
+  --ink: #15182b;
+  --muted: #5a5e70;
+  --rule: #c8cad6;
+  --accent: #c8202a;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme='light']) {
+    --bg: #0b0e1c;
+    --panel: #141830;
+    --panel-alt: #1b2040;
+    --ink: #e7e8f0;
+    --muted: #9a9db2;
+    --rule: #2a2f4a;
+    --accent: #f2474e;
+    color-scheme: dark;
+  }
+}
+
+/* Same dark values, so an explicit theme toggle wins over the OS setting. */
+:root[data-theme='dark'] {
+  --bg: #0b0e1c;
+  --panel: #141830;
+  --panel-alt: #1b2040;
+  --ink: #e7e8f0;
+  --muted: #9a9db2;
+  --rule: #2a2f4a;
+  --accent: #f2474e;
+  color-scheme: dark;
+}
