@@ -13,10 +13,14 @@ const { Content } = await render(post);
 
 <Base title={post.data.title}>
   <article>
-    <h1>{post.data.title}</h1>
-    <time datetime={post.data.publishedDate.toISOString()}>
-      {post.data.publishedDate.toLocaleDateString('en-CA', { dateStyle: 'long', timeZone: 'UTC' })}
-    </time>
-    <Content />
+    <header class="post-header">
+      <time class="post-meta" datetime={post.data.publishedDate.toISOString()}>
+        {post.data.publishedDate.toLocaleDateString('en-CA', { dateStyle: 'long', timeZone: 'UTC' })}
+      </time>
+      <h1 class="post-title">{post.data.title}</h1>
+    </header>
+    <div class="prose">
+      <Content />
+    </div>
   </article>
 </Base>

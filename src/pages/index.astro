@@ -8,18 +8,21 @@ const posts = (await getCollection('posts', ({ data }) => !data.draft)).sort(
 ---
 
 <Base>
-  <h1>The Daily Spunkmeyer</h1>
-  <ul>
+  <!-- The header already shows the name; this keeps one h1 for screen readers. -->
+  <h1 class="visually-hidden">The Daily Spunkmeyer</h1>
+  <ol class="post-list">
     {
       posts.map((post) => (
-        <li>
-          <a href={`/posts/${post.id}/`}>{post.data.title}</a>
-          <time datetime={post.data.publishedDate.toISOString()}>
+        <li class="post-item">
+          <time class="post-meta" datetime={post.data.publishedDate.toISOString()}>
             {post.data.publishedDate.toLocaleDateString('en-CA', { dateStyle: 'long', timeZone: 'UTC' })}
           </time>
-          {post.data.summary && <p>{post.data.summary}</p>}
+          <h2 class="post-item-title">
+            <a href={`/posts/${post.id}/`}>{post.data.title}</a>
+          </h2>
+          {post.data.summary && <p class="post-item-summary">{post.data.summary}</p>}
         </li>
       ))
     }
-  </ul>
+  </ol>
 </Base>
