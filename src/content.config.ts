@@ -14,6 +14,7 @@ const posts = defineCollection({
         summary: z.string(),
         cover: image().optional().nullable(),
         coverAlt: z.string().optional().nullable(),
+        category: z.enum(['none', 'map-app-dev']).default('none'),
         tags: z.array(z.string()).default([]),
         draft: z.boolean().default(false),
       })

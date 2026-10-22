@@ -57,6 +57,15 @@ export default config({
           label: 'Cover image description',
           description: 'What the cover shows, for screen readers. Required when there is a cover.',
         }),
+        category: fields.select({
+          label: 'Category',
+          description: 'Map & App Development posts also appear on alexhordal.ca/blog.',
+          options: [
+            { label: 'None', value: 'none' },
+            { label: 'Map & App Development', value: 'map-app-dev' },
+          ],
+          defaultValue: 'none',
+        }),
         tags: fields.array(fields.text({ label: 'Tag' }), {
           label: 'Tags',
           itemLabel: (props) => props.value,
