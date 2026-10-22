@@ -4,6 +4,7 @@ import { Image } from 'astro:assets';
 import Base from '../../layouts/Base.astro';
 import TagList from '../../components/TagList.astro';
 import { getPublishedPosts, formatDate, type Post } from '../../utils/posts';
+import { isDevPost, portfolioUrl } from '../../utils/portfolio';
 
 export async function getStaticPaths() {
   const posts = await getPublishedPosts();
@@ -17,6 +18,7 @@ interface Props {
 const { post } = Astro.props;
 const { title, summary, cover, coverAlt, publishedDate, updatedDate, tags } = post.data;
 const { Content } = await render(post);
+const canonical = isDevPost(post) ? portfolioUrl(post) : undefined;
 
 // Structured data so search engines read the post as an article.
 const jsonLd = {
@@ -27,7 +29,7 @@ const jsonLd = {
   datePublished: publishedDate.toISOString(),
   ...(updatedDate && { dateModified: updatedDate.toISOString() }),
   author: { '@type': 'Person', name: 'Alex Hordal' },
-  mainEntityOfPage: new URL(Astro.url.pathname, Astro.site).href,
+  mainEntityOfPage: canonical ?? new URL(Astro.url.pathname, Astro.site).href,
   keywords: tags.join(', ') || undefined,
 };
 ---
@@ -37,6 +39,7 @@ const jsonLd = {
   description={summary}
   image={cover}
   imageAlt={coverAlt}
+  canonical={canonical}
   article={{ publishedDate, updatedDate, tags }}
 >
   <script is:inline type="application/ld+json" slot="head" set:html={JSON.stringify(jsonLd)} />
