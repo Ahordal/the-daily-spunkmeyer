@@ -1,8 +1,12 @@
 import { config, fields, collection } from '@keystatic/core';
 
 export default config({
-  // Switch to { kind: 'github', repo: 'owner/name' } to edit on the deployed site.
-  storage: { kind: 'local' },
+  // GitHub in every environment, so posts written locally, on the live site
+  // and from a phone all land in the repo and can't drift apart.
+  storage: {
+    kind: 'github',
+    repo: { owner: 'Ahordal', name: 'the-daily-spunkmeyer' },
+  },
   ui: {
     brand: { name: 'The Daily Spunkmeyer' },
   },
