@@ -3,11 +3,13 @@ import Base from '../layouts/Base.astro';
 import PostList from '../components/PostList.astro';
 import { getPublishedPosts } from '../utils/posts';
 
-const posts = await getPublishedPosts();
+// The front page mixes every section; the archive holds the rest.
+const posts = (await getPublishedPosts()).slice(0, 12);
 ---
 
 <Base>
   <!-- The header already shows the name; this keeps one h1 for screen readers. -->
   <h1 class="visually-hidden">The Daily Spunkmeyer</h1>
   <PostList posts={posts} />
+  <p class="list-more"><a href="/archive/">Everything in the archive</a></p>
 </Base>

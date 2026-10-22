@@ -1,11 +1,11 @@
 import type { Post } from './posts';
 
-// Dev posts are published on both sites; the portfolio copy is the canonical one.
-// astro.config.mjs keeps its own copy of the category value for the sitemap filter.
+// Field Notes are published on both sites; the portfolio copy is the canonical one.
+// astro.config.mjs keeps its own copy of the section value for the sitemap filter.
 export const PORTFOLIO_BLOG_URL = 'https://www.alexhordal.ca/field_notes/';
 
-export function isDevPost(post: Post): boolean {
-  return post.data.category === 'map-app-dev';
+export function isFieldNote(post: Post): boolean {
+  return post.data.section === 'field-note';
 }
 
 export function portfolioUrl(post: Post): string {

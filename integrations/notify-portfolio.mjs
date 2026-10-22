@@ -1,9 +1,9 @@
 import { readFile } from 'node:fs/promises';
 
-const FEED_PATH = 'feeds/map-and-app-development.json';
+const FEED_PATH = 'feeds/field-notes.json';
 
 /**
- * After a production build, rebuilds alexhordal.ca if the dev-post feed changed.
+ * After a production build, rebuilds alexhordal.ca if the Field Notes feed changed.
  * Compares against the feed still live from the previous deploy, so unrelated
  * blog edits don't trigger portfolio builds. Needs PORTFOLIO_DEPLOY_HOOK_URL.
  * @param {{ site: string }} options
@@ -23,13 +23,13 @@ export default function notifyPortfolio({ site }) {
           .catch(() => '');
 
         if (live === next) {
-          logger.info('Dev-post feed unchanged; portfolio left alone.');
+          logger.info('Field Notes feed unchanged; portfolio left alone.');
           return;
         }
 
         // A failed hook shouldn't fail the blog deploy; the portfolio catches up on its next build.
         const res = await fetch(hook, { method: 'POST' }).catch((err) => err);
-        if (res instanceof Response && res.ok) logger.info('Dev-post feed changed; portfolio rebuild triggered.');
+        if (res instanceof Response && res.ok) logger.info('Field Notes feed changed; portfolio rebuild triggered.');
         else logger.warn(`Portfolio deploy hook failed: ${res instanceof Response ? res.status : res}`);
       },
     },

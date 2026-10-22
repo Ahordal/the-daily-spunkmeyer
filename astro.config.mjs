@@ -9,12 +9,12 @@ import sitemap from '@astrojs/sitemap';
 import notifyPortfolio from './integrations/notify-portfolio.mjs';
 import { readdirSync, readFileSync } from 'node:fs';
 
-// Dev posts' canonical copy is on the portfolio, so they stay out of this sitemap.
-// Category value mirrors src/utils/portfolio.ts.
+// Field Notes' canonical copy is on the portfolio, so they stay out of this sitemap.
+// Section value mirrors src/utils/taxonomy.ts.
 const postsDir = new URL('./src/content/posts/', import.meta.url);
-const devPostPaths = readdirSync(postsDir)
+const fieldNotePaths = readdirSync(postsDir)
   .filter((file) => file.endsWith('.mdoc'))
-  .filter((file) => /^category:\s*map-app-dev\s*$/m.test(readFileSync(new URL(file, postsDir), 'utf8')))
+  .filter((file) => /^section:\s*['"]?field-note['"]?\s*$/m.test(readFileSync(new URL(file, postsDir), 'utf8')))
   .map((file) => `/posts/${file.replace(/\.mdoc$/, '')}/`);
 
 // Canonical URLs, link previews, RSS and the sitemap are built from this.
@@ -31,7 +31,7 @@ export default defineConfig({
     markdoc(),
     keystatic(),
     sitemap({
-      filter: (page) => !page.includes('/keystatic') && !devPostPaths.some((path) => page.endsWith(path)),
+      filter: (page) => !page.includes('/keystatic') && !fieldNotePaths.some((path) => page.endsWith(path)),
     }),
     notifyPortfolio({ site }),
   ],

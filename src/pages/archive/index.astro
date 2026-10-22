@@ -1,0 +1,157 @@
+---
+import Base from '../../layouts/Base.astro';
+import { getPublishedPosts, type Post } from '../../utils/posts';
+import { SECTIONS, CATEGORIES, getSection, getCategories } from '../../utils/taxonomy';
+
+const posts = await getPublishedPosts();
+
+// Year -> month -> posts, newest first; posts arrive sorted, so insertion order holds.
+const years = new Map<number, Map<number, Post[]>>();
+for (const post of posts) {
+  const d = post.data.publishedDate;
+  const months = years.get(d.getUTCFullYear()) ?? new Map<number, Post[]>();
+  months.set(d.getUTCMonth(), [...(months.get(d.getUTCMonth()) ?? []), post]);
+  years.set(d.getUTCFullYear(), months);
+}
+
+const monthName = (m: number) =>
+  new Date(Date.UTC(2000, m, 1)).toLocaleDateString('en-CA', { month: 'long', timeZone: 'UTC' });
+const countLabel = (n: number) => `${n} ${n === 1 ? 'post' : 'posts'}`;
+---
+
+<Base title="Archive" description="Everything on The Daily Spunkmeyer, by year and month.">
+  <header class="page-header">
+    <h1 class="page-title">Archive</h1>
+    <p class="post-meta" id="archive-count" aria-live="polite">{countLabel(posts.length)}</p>
+  </header>
+
+  <!-- Shown by the script below; without it the full list still reads fine. -->
+  <div class="archive-filters" id="archive-filters" hidden>
+    <div class="filter-row" role="group" aria-label="Filter by section">
+      <button type="button" class="filter" data-filter="section" data-value="" aria-pressed="true">All sections</button>
+      {
+        SECTIONS.map((s) => (
+          <button type="button" class="filter" data-filter="section" data-value={s.id} aria-pressed="false">
+            {s.label}
+          </button>
+        ))
+      }
+    </div>
+    <div class="filter-row" role="group" aria-label="Filter by category">
+      <button type="button" class="filter" data-filter="category" data-value="" aria-pressed="true">All categories</button>
+      {
+        CATEGORIES.map((c) => (
+          <button
+            type="button"
+            class="filter has-swatch"
+            style={`--category: ${c.color}`}
+            data-filter="category"
+            data-value={c.id}
+            aria-pressed="false"
+          >
+            {c.label}
+          </button>
+        ))
+      }
+    </div>
+  </div>
+
+  {
+    [...years].map(([year, months]) => (
+      <section class="archive-year">
+        <h2 class="archive-year-title">{year}</h2>
+        {[...months].map(([month, monthPosts]) => (
+          <section class="archive-month">
+            <h3 class="archive-month-title">
+              {monthName(month)} <span class="archive-month-count">{countLabel(monthPosts.length)}</span>
+            </h3>
+            <ol class="archive-list">
+              {monthPosts.map((post) => {
+                const { title, section, categories, publishedDate } = post.data;
+                const cats = getCategories(categories);
+                return (
+                  <li class="archive-entry" data-section={section} data-categories={categories.join(' ')}>
+                    <a href={`/posts/${post.id}/`}>
+                      <time class="archive-day" datetime={publishedDate.toISOString()}>
+                        {String(publishedDate.getUTCDate()).padStart(2, '0')}
+                      </time>
+                      <span class="archive-swatches" aria-hidden="true">
+                        {cats.map((c) => (
+                          <span class="swatch" style={`--category: ${c.color}`} />
+                        ))}
+                      </span>
+                      <span class="archive-title">{title}</span>
+                      <span class="archive-cats">{cats.map((c) => c.label).join(' · ')}</span>
+                      <span class="archive-section">{getSection(section).singular}</span>
+                    </a>
+                  </li>
+                );
+              })}
+            </ol>
+          </section>
+        ))}
+      </section>
+    ))
+  }
+
+  <p class="empty-state" id="archive-empty" hidden>No posts match these filters.</p>
+</Base>
+
+<script>
+  // Filters hide entries in place; the URL keeps them, so a filtered view can be shared.
+  const filters = document.getElementById('archive-filters')!;
+  const buttons = [...filters.querySelectorAll<HTMLButtonElement>('button[data-filter]')];
+  const entries = [...document.querySelectorAll<HTMLElement>('.archive-entry')];
+  const count = document.getElementById('archive-count')!;
+  const empty = document.getElementById('archive-empty')!;
+  const plural = (n: number) => `${n} ${n === 1 ? 'post' : 'posts'}`;
+
+  const params = new URLSearchParams(location.search);
+  const state = { section: params.get('section') ?? '', category: params.get('category') ?? '' };
+
+  function apply() {
+    let shown = 0;
+    for (const entry of entries) {
+      const cats = (entry.dataset.categories ?? '').split(' ');
+      const match =
+        (!state.section || entry.dataset.section === state.section) &&
+        (!state.category || cats.includes(state.category));
+      entry.hidden = !match;
+      if (match) shown++;
+    }
+
+    // Hide months and years left empty, and keep each month's count honest.
+    for (const month of document.querySelectorAll<HTMLElement>('.archive-month')) {
+      const visible = month.querySelectorAll('.archive-entry:not([hidden])').length;
+      month.hidden = visible === 0;
+      month.querySelector('.archive-month-count')!.textContent = plural(visible);
+    }
+    for (const year of document.querySelectorAll<HTMLElement>('.archive-year')) {
+      year.hidden = !year.querySelector('.archive-month:not([hidden])');
+    }
+
+    for (const button of buttons) {
+      const key = button.dataset.filter as 'section' | 'category';
+      button.setAttribute('aria-pressed', String(state[key] === (button.dataset.value ?? '')));
+    }
+
+    count.textContent = plural(shown);
+    empty.hidden = shown > 0;
+
+    const next = new URLSearchParams();
+    if (state.section) next.set('section', state.section);
+    if (state.category) next.set('category', state.category);
+    const query = next.toString();
+    history.replaceState(null, '', query ? `?${query}` : location.pathname);
+  }
+
+  for (const button of buttons) {
+    button.addEventListener('click', () => {
+      state[button.dataset.filter as 'section' | 'category'] = button.dataset.value ?? '';
+      apply();
+    });
+  }
+
+  filters.hidden = false;
+  apply();
+</script>

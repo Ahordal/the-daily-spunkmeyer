@@ -1,35 +1,51 @@
 ---
 import { Image } from 'astro:assets';
-import TagList from './TagList.astro';
-import { formatDate, type Post } from '../utils/posts';
+import CategoryList from './CategoryList.astro';
+import { formatDate, linkHost, type Post } from '../utils/posts';
+import { getSection } from '../utils/taxonomy';
 
 interface Props {
   posts: Post[];
+  /** Hide the section label on a section's own page, where it's implied. */
+  showSection?: boolean;
 }
 
-const { posts } = Astro.props;
+const { posts, showSection = true } = Astro.props;
 ---
 
 <ol class="post-list">
   {
-    posts.map((post) => (
-      <li class:list={['post-item', { 'has-cover': post.data.cover }]}>
-        {post.data.cover && (
-          <a class="post-item-cover" href={`/posts/${post.id}/`} tabindex="-1" aria-hidden="true">
-            <Image src={post.data.cover} alt="" widths={[320, 640]} sizes="(min-width: 720px) 240px, 100vw" />
-          </a>
-        )}
-        <div class="post-item-body">
-          <time class="post-meta" datetime={post.data.publishedDate.toISOString()}>
-            {formatDate(post.data.publishedDate)}
-          </time>
-          <h2 class="post-item-title">
-            <a href={`/posts/${post.id}/`}>{post.data.title}</a>
-          </h2>
-          <p class="post-item-summary">{post.data.summary}</p>
-          <TagList tags={post.data.tags} />
-        </div>
-      </li>
-    ))
+    posts.map((post) => {
+      const { title, summary, cover, publishedDate, section, categories, link } = post.data;
+      const href = `/posts/${post.id}/`;
+      return (
+        <li class:list={['post-item', { 'has-cover': cover }]}>
+          {cover && (
+            <a class="post-item-cover" href={href} tabindex="-1" aria-hidden="true">
+              <Image src={cover} alt="" widths={[320, 640]} sizes="(min-width: 720px) 240px, 100vw" />
+            </a>
+          )}
+          <div class="post-item-body">
+            <p class="post-meta">
+              {/* Field Notes name their section at the head of the category list instead. */}
+              {showSection && section !== 'field-note' && <>{getSection(section).singular} // </>}
+              <time datetime={publishedDate.toISOString()}>{formatDate(publishedDate)}</time>
+            </p>
+            <h2 class="post-item-title">
+              <a href={href}>{title}</a>
+            </h2>
+            {summary && <p class="post-item-summary">{summary}</p>}
+            {link && (
+              <p class="post-item-link">
+                <a href={link} rel="noopener">
+                  {linkHost(link)} ↗
+                </a>
+              </p>
+            )}
+            <CategoryList ids={categories} section={section} />
+          </div>
+        </li>
+      );
+    })
   }
 </ol>

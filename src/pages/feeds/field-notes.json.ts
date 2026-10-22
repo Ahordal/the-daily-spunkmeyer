@@ -2,14 +2,15 @@ import type { APIContext } from 'astro';
 import { getImage } from 'astro:assets';
 import { render } from 'astro:content';
 import { experimental_AstroContainer as AstroContainer } from 'astro/container';
-import { getPublishedPosts } from '../../utils/posts';
-import { isDevPost, portfolioUrl } from '../../utils/portfolio';
+import { getPostsInSection } from '../../utils/posts';
+import { portfolioUrl } from '../../utils/portfolio';
+import { getCategories } from '../../utils/taxonomy';
 
-// Read by alexhordal.ca at build time to publish dev posts as its own /field_notes pages.
+// Read by alexhordal.ca at build time to publish Field Notes as its own /field_notes pages.
 // Changing this shape means updating the portfolio's src/utils/blog.ts too.
 export async function GET(context: APIContext) {
   const site = context.site!;
-  const posts = (await getPublishedPosts()).filter(isDevPost);
+  const posts = await getPostsInSection('field-note');
   const container = await AstroContainer.create();
 
   // The portfolio is another origin, so root-relative image paths must become absolute.
@@ -25,18 +26,19 @@ export async function GET(context: APIContext) {
 
   const items = await Promise.all(
     posts.map(async (post) => {
-      const { title, summary, publishedDate, updatedDate, tags, cover, coverAlt } = post.data;
+      const { title, summary, link, publishedDate, updatedDate, categories, cover, coverAlt } = post.data;
       const image = cover ? await getImage({ src: cover, width: 1280, format: 'webp' }) : null;
       const { Content } = await render(post);
       return {
         slug: post.id,
         title,
-        summary,
+        summary: summary ?? '',
+        link: link ?? null,
         url: portfolioUrl(post),
         blogUrl: new URL(`/posts/${post.id}/`, site).href,
         publishedDate: publishedDate.toISOString(),
         updatedDate: updatedDate?.toISOString() ?? null,
-        tags,
+        categories: getCategories(categories).map(({ id, label, color }) => ({ id, label, color })),
         cover: image
           ? {
               src: new URL(image.src, site).href,
@@ -51,7 +53,7 @@ export async function GET(context: APIContext) {
   );
 
   const feed = {
-    title: 'The Daily Spunkmeyer: Map & App Development',
+    title: 'The Daily Spunkmeyer: Field Notes',
     home: site.href,
     items,
   };

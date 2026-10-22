@@ -1,4 +1,5 @@
 import { getCollection, type CollectionEntry } from 'astro:content';
+import type { SectionId } from './taxonomy';
 
 export type Post = CollectionEntry<'posts'>;
 
@@ -8,34 +9,28 @@ export async function getPublishedPosts(): Promise<Post[]> {
   return posts.sort((a, b) => b.data.publishedDate.valueOf() - a.data.publishedDate.valueOf());
 }
 
-/** URL-safe tag: "Map Projections" -> "map-projections". */
-export function tagSlug(tag: string): string {
-  return tag
-    .normalize('NFKD')
-    .replace(/[̀-ͯ]/g, '')
-    .toLowerCase()
-    .trim()
-    .replace(/&/g, ' and ')
-    .replace(/[^a-z0-9]+/g, '-')
-    .replace(/^-+|-+$/g, '');
-}
-
-/** Every tag in use, keyed by slug so "Aliens" and "aliens" share a page. */
-export function collectTags(posts: Post[]): Map<string, { label: string; posts: Post[] }> {
-  const tags = new Map<string, { label: string; posts: Post[] }>();
-  for (const post of posts) {
-    for (const tag of post.data.tags) {
-      const slug = tagSlug(tag);
-      if (!slug) continue;
-      const entry = tags.get(slug) ?? { label: tag, posts: [] };
-      entry.posts.push(post);
-      tags.set(slug, entry);
-    }
-  }
-  return tags;
+export async function getPostsInSection(section: SectionId): Promise<Post[]> {
+  return (await getPublishedPosts()).filter((post) => post.data.section === section);
 }
 
 // Dates are stored without a time, so format in UTC to avoid an off-by-one day.
 export function formatDate(date: Date): string {
   return date.toLocaleDateString('en-CA', { dateStyle: 'long', timeZone: 'UTC' });
+}
+
+/** Bare host for a dispatch's source link: "https://www.example.com/x" -> "example.com". */
+export function linkHost(url: string): string {
+  return new URL(url).hostname.replace(/^www\./, '');
+}
+
+/** Masthead edition line: volume counts years since launch, number counts published posts. */
+export async function getEdition(): Promise<{ volume: number; number: string; date: Date } | null> {
+  const posts = await getPublishedPosts();
+  if (posts.length === 0) return null;
+  const latest = posts[0].data.publishedDate;
+  return {
+    volume: latest.getUTCFullYear() - 2026 + 1,
+    number: String(posts.length).padStart(3, '0'),
+    date: latest,
+  };
 }

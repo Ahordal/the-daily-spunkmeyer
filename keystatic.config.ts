@@ -1,5 +1,6 @@
 import { config, fields, collection } from '@keystatic/core';
 import { wrapper } from '@keystatic/core/content-components';
+import { SECTIONS, CATEGORIES } from './src/utils/taxonomy';
 
 // Images live under src/ so Astro can resize and compress them at build time.
 // publicPath is relative to the post file in src/content/posts/.
@@ -24,8 +25,14 @@ export default config({
       slugField: 'title',
       path: 'src/content/posts/*',
       format: { contentField: 'content' },
-      columns: ['title', 'publishedDate'],
+      columns: ['title', 'section', 'publishedDate'],
       schema: {
+        section: fields.select({
+          label: 'Section',
+          description: 'Field Notes also appear on alexhordal.ca/field_notes.',
+          options: SECTIONS.map((s) => ({ label: s.singular, value: s.id })),
+          defaultValue: 'article',
+        }),
         title: fields.slug({
           name: { label: 'Title' },
           slug: {
@@ -44,9 +51,13 @@ export default config({
         }),
         summary: fields.text({
           label: 'Summary',
-          description: 'One or two sentences. Shown in the post list, search results and link previews.',
+          description: 'Optional. One or two sentences for the post list, search results and link previews.',
           multiline: true,
-          validation: { length: { min: 1, max: 200 } },
+          validation: { length: { max: 200 } },
+        }),
+        link: fields.url({
+          label: 'Link',
+          description: 'Optional. For a dispatch about something you found: where it lives.',
         }),
         cover: fields.image({
           label: 'Cover image',
@@ -57,18 +68,10 @@ export default config({
           label: 'Cover image description',
           description: 'What the cover shows, for screen readers. Required when there is a cover.',
         }),
-        category: fields.select({
-          label: 'Category',
-          description: 'Map & App Development posts also appear on alexhordal.ca/field_notes.',
-          options: [
-            { label: 'None', value: 'none' },
-            { label: 'Map & App Development', value: 'map-app-dev' },
-          ],
-          defaultValue: 'none',
-        }),
-        tags: fields.array(fields.text({ label: 'Tag' }), {
-          label: 'Tags',
-          itemLabel: (props) => props.value,
+        categories: fields.multiselect({
+          label: 'Categories',
+          description: 'Pick any that fit. Used for the coloured markers and the archive filter.',
+          options: CATEGORIES.map((c) => ({ label: c.label, value: c.id })),
         }),
         draft: fields.checkbox({
           label: 'Draft',

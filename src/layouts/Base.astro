@@ -4,6 +4,8 @@ import '@fontsource/barlow-condensed/700.css';
 import '../styles/global.css';
 import { getImage } from 'astro:assets';
 import type { ImageMetadata } from 'astro';
+import { getEdition, formatDate } from '../utils/posts';
+import { SECTIONS } from '../utils/taxonomy';
 
 interface Props {
   title?: string;
@@ -15,6 +17,7 @@ interface Props {
   article?: {
     publishedDate: Date;
     updatedDate?: Date | null;
+    /** Category labels, for article:tag. */
     tags: string[];
   };
 }
@@ -32,6 +35,15 @@ const preview = image
   : null;
 const previewUrl = new URL(preview ? preview.src : '/og-default.png', Astro.site);
 const previewAlt = image ? (imageAlt ?? '') : `${siteName} logo`;
+
+const edition = await getEdition();
+const path = Astro.url.pathname;
+const isCurrent = (href: string) => path === href || path.startsWith(href);
+const secondaryLinks = [
+  { href: '/archive/', label: 'Archive' },
+  { href: '/about/', label: 'About' },
+  { href: '/rss.xml', label: 'RSS' },
+];
 ---
 
 <html lang="en-CA">
@@ -79,10 +91,43 @@ const previewAlt = image ? (imageAlt ?? '') : `${siteName} logo`;
   <body>
     <header class="site-header">
       <div class="container site-header-inner">
+        {
+          edition && (
+            <p class="masthead-edition">
+              Vol. {edition.volume} // No. {edition.number} //{' '}
+              <time datetime={edition.date.toISOString()}>{formatDate(edition.date)}</time>
+            </p>
+          )
+        }
         <a class="site-brand" href="/">
           <img src="/logo.svg" alt="" width="44" height="44" />
           <span class="site-title">{siteName}</span>
         </a>
+        <div class="masthead-rule" aria-hidden="true"></div>
+        <nav class="site-nav" aria-label="Site">
+          <ul class="site-nav-primary">
+            {
+              SECTIONS.map((s) => (
+                <li>
+                  <a href={s.path} aria-current={isCurrent(s.path) ? 'page' : undefined}>
+                    {s.label}
+                  </a>
+                </li>
+              ))
+            }
+          </ul>
+          <ul class="site-nav-secondary">
+            {
+              secondaryLinks.map((l) => (
+                <li>
+                  <a href={l.href} aria-current={isCurrent(l.href) ? 'page' : undefined}>
+                    {l.label}
+                  </a>
+                </li>
+              ))
+            }
+          </ul>
+        </nav>
       </div>
     </header>
     <main class="container site-main">
