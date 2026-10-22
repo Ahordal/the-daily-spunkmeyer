@@ -8,7 +8,7 @@ export const SECTIONS = [
   { id: 'field-note', label: 'Field Notes', singular: 'Field Note', path: '/field_notes/' },
 ] as const;
 
-// Colours follow the Semiotic Standard palette (bar Tech & AI); the map/dev trio share the logo's red and navys.
+// Colours follow the Semiotic Standard palette (bar Tech and AI); the map/dev trio share the logo's red and navys.
 export const CATEGORIES = [
   { id: 'cartography', label: 'Cartography', color: '#e8222b' },
   { id: 'maps', label: 'Maps', color: '#232f78' },
@@ -19,8 +19,9 @@ export const CATEGORIES = [
   { id: 'life', label: 'Life', color: '#8c847e' },
   { id: 'memes', label: 'Memes', color: '#f4a259' },
   { id: 'clips', label: 'Clips', color: '#7fb685' },
-  // Outside the Semiotic palette on purpose: no hue there reads apart from the nine above.
-  { id: 'tech-ai', label: 'Tech & AI', color: '#6b4fa0' },
+  // Outside the Semiotic palette on purpose: no hues left there that read apart from the nine above.
+  { id: 'tech', label: 'Tech', color: '#13868a' },
+  { id: 'ai', label: 'AI', color: '#6b4fa0' },
 ] as const;
 
 export type SectionId = (typeof SECTIONS)[number]['id'];
