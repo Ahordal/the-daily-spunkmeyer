@@ -5,7 +5,7 @@ import { experimental_AstroContainer as AstroContainer } from 'astro/container';
 import { getPublishedPosts } from '../../utils/posts';
 import { isDevPost, portfolioUrl } from '../../utils/portfolio';
 
-// Read by alexhordal.ca at build time to publish dev posts as its own /blog pages.
+// Read by alexhordal.ca at build time to publish dev posts as its own /field_notes pages.
 // Changing this shape means updating the portfolio's src/utils/blog.ts too.
 export async function GET(context: APIContext) {
   const site = context.site!;

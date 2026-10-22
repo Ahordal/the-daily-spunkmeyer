@@ -59,7 +59,7 @@ export default config({
         }),
         category: fields.select({
           label: 'Category',
-          description: 'Map & App Development posts also appear on alexhordal.ca/blog.',
+          description: 'Map & App Development posts also appear on alexhordal.ca/field_notes.',
           options: [
             { label: 'None', value: 'none' },
             { label: 'Map & App Development', value: 'map-app-dev' },
