@@ -8,8 +8,10 @@ const posts = (await getPublishedPosts()).slice(0, 12);
 ---
 
 <Base>
-  <!-- The header already shows the name; this keeps one h1 for screen readers. -->
-  <h1 class="visually-hidden">The Daily Spunkmeyer</h1>
+  <header class="page-header">
+    <h1 class="page-title">Latest</h1>
+    <p class="page-intro">The newest from every section.</p>
+  </header>
   <PostList posts={posts} />
   <p class="list-more"><a href="/archive/">Everything in the archive</a></p>
 </Base>

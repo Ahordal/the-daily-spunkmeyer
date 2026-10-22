@@ -38,7 +38,9 @@ const previewAlt = image ? (imageAlt ?? '') : `${siteName} logo`;
 
 const edition = await getEdition();
 const path = Astro.url.pathname;
-const isCurrent = (href: string) => path === href || path.startsWith(href);
+// "/" would prefix-match every page, so Latest only lights up on the home page itself.
+const isCurrent = (href: string) => (href === '/' ? path === '/' : path.startsWith(href));
+const primaryLinks = [{ href: '/', label: 'Latest' }, ...SECTIONS.map((s) => ({ href: s.path, label: s.label }))];
 const secondaryLinks = [
   { href: '/archive/', label: 'Archive' },
   { href: '/about/', label: 'About' },
@@ -107,10 +109,10 @@ const secondaryLinks = [
         <nav class="site-nav" aria-label="Site">
           <ul class="site-nav-primary">
             {
-              SECTIONS.map((s) => (
+              primaryLinks.map((l) => (
                 <li>
-                  <a href={s.path} aria-current={isCurrent(s.path) ? 'page' : undefined}>
-                    {s.label}
+                  <a href={l.href} aria-current={isCurrent(l.href) ? 'page' : undefined}>
+                    {l.label}
                   </a>
                 </li>
               ))
