@@ -135,7 +135,9 @@ summary:focus-visible,
   --fs-lg: 1.125rem;   /* 18px - article body */
   --fs-xl: 1.5rem;     /* 24px - h3 */
   --fs-2xl: 2rem;      /* 32px - list titles, h2 */
-  --fs-display: clamp(2rem, 7vw, 4.5rem); /* 32-72px - site title */
+  /* Site title, up to 108px. Logo + title run ~10.2em wide, so below the cap
+     the size tracks the viewport and the brand always fits on one line. */
+  --fs-display: clamp(1rem, calc((100vw - 2rem) / 10.2), 6.75rem);
   --fs-3xl: clamp(2.25rem, 6vw, 3.25rem); /* post title */
 }
 
@@ -199,7 +201,9 @@ summary:focus-visible,
   border-bottom: 1px solid var(--border-panel);
 }
 
+/* Wider than the content column: the 108px title needs ~1100px to stay on one line. */
 .site-header-inner {
+  max-width: 72rem;
   padding-block: var(--space-s);
 }
 
@@ -232,6 +236,7 @@ summary:focus-visible,
   line-height: 0.95;
   letter-spacing: 0.01em;
   text-transform: uppercase;
+  white-space: nowrap;
 }
 
 /* ///////////////////////////////////////////// 5. POST LIST ////////////////////////////////////////////// */
