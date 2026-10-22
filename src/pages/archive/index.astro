@@ -37,22 +37,14 @@ const countLabel = (n: number) => `${n} ${n === 1 ? 'post' : 'posts'}`;
         ))
       }
     </div>
-    <div class="filter-row" role="group" aria-label="Filter by category">
-      <button type="button" class="filter" data-filter="category" data-value="" aria-pressed="true">All categories</button>
-      {
-        CATEGORIES.map((c) => (
-          <button
-            type="button"
-            class="filter has-swatch"
-            style={`--category: ${c.color}`}
-            data-filter="category"
-            data-value={c.id}
-            aria-pressed="false"
-          >
-            {c.label}
-          </button>
-        ))
-      }
+    <!-- A native select: eleven options would be three rows of buttons, and phones get their own picker. -->
+    <div class="filter-select">
+      <label for="category-filter">Category</label>
+      <span class="swatch" id="category-swatch" aria-hidden="true" hidden></span>
+      <select id="category-filter">
+        <option value="">All categories</option>
+        {CATEGORIES.map((c) => <option value={c.id} data-color={c.color}>{c.label}</option>)}
+      </select>
     </div>
   </div>
 
@@ -101,6 +93,8 @@ const countLabel = (n: number) => `${n} ${n === 1 ? 'post' : 'posts'}`;
   // Filters hide entries in place; the URL keeps them, so a filtered view can be shared.
   const filters = document.getElementById('archive-filters')!;
   const buttons = [...filters.querySelectorAll<HTMLButtonElement>('button[data-filter]')];
+  const select = document.getElementById('category-filter') as HTMLSelectElement;
+  const swatch = document.getElementById('category-swatch')!;
   const entries = [...document.querySelectorAll<HTMLElement>('.archive-entry')];
   const count = document.getElementById('archive-count')!;
   const empty = document.getElementById('archive-empty')!;
@@ -131,9 +125,18 @@ const countLabel = (n: number) => `${n} ${n === 1 ? 'post' : 'posts'}`;
     }
 
     for (const button of buttons) {
-      const key = button.dataset.filter as 'section' | 'category';
-      button.setAttribute('aria-pressed', String(state[key] === (button.dataset.value ?? '')));
+      button.setAttribute('aria-pressed', String(state.section === (button.dataset.value ?? '')));
     }
+
+    // An unknown ?category= falls back to All rather than an empty list.
+    select.value = state.category;
+    if (select.value !== state.category) {
+      state.category = '';
+      select.value = '';
+    }
+    const color = select.selectedOptions[0]?.dataset.color;
+    swatch.hidden = !color;
+    if (color) swatch.style.setProperty('--category', color);
 
     count.textContent = plural(shown);
     empty.hidden = shown > 0;
@@ -147,10 +150,15 @@ const countLabel = (n: number) => `${n} ${n === 1 ? 'post' : 'posts'}`;
 
   for (const button of buttons) {
     button.addEventListener('click', () => {
-      state[button.dataset.filter as 'section' | 'category'] = button.dataset.value ?? '';
+      state.section = button.dataset.value ?? '';
       apply();
     });
   }
+
+  select.addEventListener('change', () => {
+    state.category = select.value;
+    apply();
+  });
 
   filters.hidden = false;
   apply();
