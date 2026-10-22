@@ -95,11 +95,13 @@ summary:focus-visible,
 
 /* 2.1 COLOR PALETTE & DESIGN TOKENS
 
-   Light values on :root; dark values in 2.2. Both page backgrounds and
-   the dark panels are locked; panel roles are still TBD. */
+   Light only, by choice: no dark theme. Panel roles are still TBD. */
 
 :root {
-  /* Brand: the logo's own colours, same in both themes. */
+  /* Keeps browser controls and scrollbars light even when the OS is dark. */
+  color-scheme: light;
+
+  /* Brand: the logo's own colours. */
   --brand-red: #e8222b;
   --brand-navy: #232f78;
 
@@ -109,7 +111,6 @@ summary:focus-visible,
   --bg-panel-alt: #e6e7ee; /* TBD: too close to --bg now */
   --text-body: #15182b;
 
-  /* Site title; each mode uses the other mode's background. */
   --text-title: #0b0e1c;
   --text-muted: #5a5e70;
   --border-panel: #c8cad6;
@@ -143,39 +144,6 @@ summary:focus-visible,
      shrinking on phones in step with the one-line title. */
   --size-emblem: clamp(1rem, calc((100vw - 2rem) / 10.2), 6.75rem);
   --fs-3xl: clamp(2.25rem, 6vw, 3.25rem); /* post title */
-}
-
-/* 2.2 DARK THEME
-
-   Follows the OS unless data-theme is set on <html> (future menu toggle). */
-
-@media (prefers-color-scheme: dark) {
-  :root:not([data-theme='light']) {
-    --bg: #0b0e1c;
-    --bg-panel: #141830;
-    --bg-panel-alt: #1b2040;
-    --text-body: #e7e8f0;
-    --text-title: #e7e8f0;
-    --text-muted: #9a9db2;
-    --border-panel: #2a2f4a;
-    --accent: #f2474e;
-    --focus-ring: #e7e8f0;
-    color-scheme: dark;
-  }
-}
-
-/* Same dark values, so an explicit toggle wins over the OS setting. */
-:root[data-theme='dark'] {
-  --bg: #0b0e1c;
-  --bg-panel: #141830;
-  --bg-panel-alt: #1b2040;
-  --text-body: #e7e8f0;
-  --text-title: #e7e8f0;
-  --text-muted: #9a9db2;
-  --border-panel: #2a2f4a;
-  --accent: #f2474e;
-  --focus-ring: #e7e8f0;
-  color-scheme: dark;
 }
 
 /* ///////////////////////////////////////////// 3. PAGE LAYOUT ////////////////////////////////////////////// */
