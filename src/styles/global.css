@@ -1,4 +1,4 @@
-/* global.css - reset, variables, layout, header, post list and article prose.
+/* global.css - reset, variables, layout, header, post list, article, figures and tags.
    Plain global CSS (unscoped), loaded once from Base.astro. */
 
 /* ///////////////////////////////////////////// 1. RESET & GLOBAL FOUNDATIONS ////////////////////////////////////////////// */
@@ -242,13 +242,36 @@ summary:focus-visible,
 
 .post-item {
   display: grid;
-  gap: var(--space-xs);
+  gap: var(--space-s);
   padding-block: var(--space-m);
   border-bottom: 1px solid var(--border-panel);
 }
 
 .post-item:first-child {
   padding-top: 0;
+}
+
+/* Cover beside the text from tablet width up; stacked above it on phones. */
+@media (min-width: 720px) {
+  .post-item.has-cover {
+    grid-template-columns: 15rem minmax(0, 1fr);
+    gap: var(--space-m);
+    align-items: start;
+  }
+}
+
+.post-item-cover img {
+  display: block;
+  width: 100%;
+  aspect-ratio: 3 / 2;
+  object-fit: cover;
+}
+
+.post-item-body {
+  display: grid;
+  gap: var(--space-xs);
+  align-content: start;
+  min-width: 0;
 }
 
 /* 5.2 ITEM TEXT */
@@ -285,11 +308,20 @@ summary:focus-visible,
   color: var(--text-muted);
 }
 
+.post-meta a {
+  color: inherit;
+}
+
+.post-meta a:hover {
+  color: var(--accent);
+}
+
 /* ///////////////////////////////////////////// 6. ARTICLE ////////////////////////////////////////////// */
 
-/* 6.1 ARTICLE HEADER */
+/* 6.1 ARTICLE & PAGE HEADERS (page headers top the tag pages) */
 
-.post-header {
+.post-header,
+.page-header {
   display: grid;
   gap: var(--space-xs);
   padding-bottom: var(--space-m);
@@ -297,7 +329,12 @@ summary:focus-visible,
   border-bottom: 1px solid var(--border-panel);
 }
 
-.post-title {
+.post-header .tag-list {
+  margin-top: var(--space-xs);
+}
+
+.post-title,
+.page-title {
   font-family: var(--font-display);
   font-size: var(--fs-3xl);
   font-weight: 900;
@@ -306,7 +343,16 @@ summary:focus-visible,
   text-wrap: balance;
 }
 
-/* 6.2 PROSE
+/* 6.2 COVER IMAGE */
+
+.post-cover {
+  display: block;
+  width: 100%;
+  height: auto;
+  margin-bottom: var(--space-m);
+}
+
+/* 6.3 PROSE
 
    Markdoc output has no classes, so the body is styled by element. */
 
@@ -377,4 +423,67 @@ summary:focus-visible,
 .prose hr {
   border: 0;
   border-top: 1px solid var(--border-panel);
+}
+
+.prose img {
+  display: block;
+  max-width: 100%;
+  height: auto;
+}
+
+/* 6.4 FIGURES & CAPTIONS
+
+   Markdoc wraps the image in a <p>; the figure owns the spacing instead. */
+
+.prose .post-figure {
+  margin-block: 2em;
+}
+
+.post-figure p {
+  margin: 0;
+}
+
+.post-figure figcaption {
+  margin-top: var(--space-xs);
+  font-size: var(--fs-sm);
+  line-height: 1.5;
+  color: var(--text-muted);
+}
+
+/* ///////////////////////////////////////////// 7. TAGS ////////////////////////////////////////////// */
+
+/* 7.1 TAG LIST (posts, list items and the tag index) */
+
+.tag-list {
+  list-style: none;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+}
+
+.tag {
+  display: inline-block;
+  padding: 0.2rem 0.5rem;
+  border: 1px solid var(--border-panel);
+  font-family: var(--font-mono);
+  font-size: var(--fs-xs);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+  text-decoration: none;
+}
+
+.tag:hover {
+  color: var(--accent);
+  border-color: var(--accent);
+}
+
+/* 7.2 TAG INDEX */
+
+.tag-index {
+  gap: var(--space-xs);
+}
+
+.tag-count {
+  color: var(--accent);
 }

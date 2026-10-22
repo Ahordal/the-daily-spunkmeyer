@@ -1,0 +1,35 @@
+---
+import { Image } from 'astro:assets';
+import TagList from './TagList.astro';
+import { formatDate, type Post } from '../utils/posts';
+
+interface Props {
+  posts: Post[];
+}
+
+const { posts } = Astro.props;
+---
+
+<ol class="post-list">
+  {
+    posts.map((post) => (
+      <li class:list={['post-item', { 'has-cover': post.data.cover }]}>
+        {post.data.cover && (
+          <a class="post-item-cover" href={`/posts/${post.id}/`} tabindex="-1" aria-hidden="true">
+            <Image src={post.data.cover} alt="" widths={[320, 640]} sizes="(min-width: 720px) 240px, 100vw" />
+          </a>
+        )}
+        <div class="post-item-body">
+          <time class="post-meta" datetime={post.data.publishedDate.toISOString()}>
+            {formatDate(post.data.publishedDate)}
+          </time>
+          <h2 class="post-item-title">
+            <a href={`/posts/${post.id}/`}>{post.data.title}</a>
+          </h2>
+          <p class="post-item-summary">{post.data.summary}</p>
+          <TagList tags={post.data.tags} />
+        </div>
+      </li>
+    ))
+  }
+</ol>

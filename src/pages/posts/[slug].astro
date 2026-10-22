@@ -1,24 +1,74 @@
 ---
-import { getCollection, render } from 'astro:content';
+import { render } from 'astro:content';
+import { Image } from 'astro:assets';
 import Base from '../../layouts/Base.astro';
+import TagList from '../../components/TagList.astro';
+import { getPublishedPosts, formatDate, type Post } from '../../utils/posts';
 
 export async function getStaticPaths() {
-  const posts = await getCollection('posts', ({ data }) => !data.draft);
+  const posts = await getPublishedPosts();
   return posts.map((post) => ({ params: { slug: post.id }, props: { post } }));
 }
 
+interface Props {
+  post: Post;
+}
+
 const { post } = Astro.props;
+const { title, summary, cover, coverAlt, publishedDate, updatedDate, tags } = post.data;
 const { Content } = await render(post);
+
+// Structured data so search engines read the post as an article.
+const jsonLd = {
+  '@context': 'https://schema.org',
+  '@type': 'BlogPosting',
+  headline: title,
+  description: summary,
+  datePublished: publishedDate.toISOString(),
+  ...(updatedDate && { dateModified: updatedDate.toISOString() }),
+  author: { '@type': 'Person', name: 'Alex Hordal' },
+  mainEntityOfPage: new URL(Astro.url.pathname, Astro.site).href,
+  keywords: tags.join(', ') || undefined,
+};
 ---
 
-<Base title={post.data.title}>
+<Base
+  title={title}
+  description={summary}
+  image={cover}
+  imageAlt={coverAlt}
+  article={{ publishedDate, updatedDate, tags }}
+>
+  <script is:inline type="application/ld+json" slot="head" set:html={JSON.stringify(jsonLd)} />
   <article>
     <header class="post-header">
-      <time class="post-meta" datetime={post.data.publishedDate.toISOString()}>
-        {post.data.publishedDate.toLocaleDateString('en-CA', { dateStyle: 'long', timeZone: 'UTC' })}
-      </time>
-      <h1 class="post-title">{post.data.title}</h1>
+      <p class="post-meta">
+        <time datetime={publishedDate.toISOString()}>{formatDate(publishedDate)}</time>
+        {
+          updatedDate && (
+            <>
+              {' // Updated '}
+              <time datetime={updatedDate.toISOString()}>{formatDate(updatedDate)}</time>
+            </>
+          )
+        }
+      </p>
+      <h1 class="post-title">{title}</h1>
+      <TagList tags={tags} />
     </header>
+    {
+      cover && (
+        <Image
+          class="post-cover"
+          src={cover}
+          alt={coverAlt ?? ''}
+          widths={[640, 960, 1280, 1920]}
+          sizes="(min-width: 960px) 960px, 100vw"
+          loading="eager"
+          fetchpriority="high"
+        />
+      )
+    }
     <div class="prose">
       <Content />
     </div>

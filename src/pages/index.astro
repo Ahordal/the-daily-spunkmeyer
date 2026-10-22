@@ -1,28 +1,13 @@
 ---
-import { getCollection } from 'astro:content';
 import Base from '../layouts/Base.astro';
+import PostList from '../components/PostList.astro';
+import { getPublishedPosts } from '../utils/posts';
 
-const posts = (await getCollection('posts', ({ data }) => !data.draft)).sort(
-  (a, b) => b.data.publishedDate.valueOf() - a.data.publishedDate.valueOf(),
-);
+const posts = await getPublishedPosts();
 ---
 
 <Base>
   <!-- The header already shows the name; this keeps one h1 for screen readers. -->
   <h1 class="visually-hidden">The Daily Spunkmeyer</h1>
-  <ol class="post-list">
-    {
-      posts.map((post) => (
-        <li class="post-item">
-          <time class="post-meta" datetime={post.data.publishedDate.toISOString()}>
-            {post.data.publishedDate.toLocaleDateString('en-CA', { dateStyle: 'long', timeZone: 'UTC' })}
-          </time>
-          <h2 class="post-item-title">
-            <a href={`/posts/${post.id}/`}>{post.data.title}</a>
-          </h2>
-          {post.data.summary && <p class="post-item-summary">{post.data.summary}</p>}
-        </li>
-      ))
-    }
-  </ol>
+  <PostList posts={posts} />
 </Base>

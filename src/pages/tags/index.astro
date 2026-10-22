@@ -1,0 +1,29 @@
+---
+import Base from '../../layouts/Base.astro';
+import { getPublishedPosts, collectTags } from '../../utils/posts';
+
+const tags = [...collectTags(await getPublishedPosts())].sort(([, a], [, b]) =>
+  a.label.localeCompare(b.label, 'en-CA'),
+);
+---
+
+<Base title="Tags" description="Every topic on The Daily Spunkmeyer.">
+  <header class="page-header">
+    <h1 class="page-title">Tags</h1>
+  </header>
+  {
+    tags.length > 0 ? (
+      <ul class="tag-list tag-index">
+        {tags.map(([slug, { label, posts }]) => (
+          <li>
+            <a class="tag" href={`/tags/${slug}/`}>
+              {label} <span class="tag-count">{posts.length}</span>
+            </a>
+          </li>
+        ))}
+      </ul>
+    ) : (
+      <p class="post-item-summary">No tags yet.</p>
+    )
+  }
+</Base>
