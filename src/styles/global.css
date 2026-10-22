@@ -135,9 +135,13 @@ summary:focus-visible,
   --fs-lg: 1.125rem;   /* 18px - article body */
   --fs-xl: 1.5rem;     /* 24px - h3 */
   --fs-2xl: 2rem;      /* 32px - list titles, h2 */
-  /* Site title, up to 108px. Logo + title run ~10.2em wide, so below the cap
-     the size tracks the viewport and the brand always fits on one line. */
-  --fs-display: clamp(1rem, calc((100vw - 2rem) / 10.2), 6.75rem);
+  /* Site title: the insignia brief's heading (7vw, max 72px). Logo + title run
+     ~10.2em wide, so on phones it shrinks further to stay on one line. */
+  --fs-display: clamp(1rem, min(7vw, calc((100vw - 2rem) / 10.2)), 4.5rem);
+
+  /* Header emblem, sized on its own so title tweaks never move it: up to 108px,
+     shrinking on phones in step with the one-line title. */
+  --size-emblem: clamp(1rem, calc((100vw - 2rem) / 10.2), 6.75rem);
   --fs-3xl: clamp(2.25rem, 6vw, 3.25rem); /* post title */
 }
 
@@ -201,20 +205,18 @@ summary:focus-visible,
   border-bottom: 1px solid var(--border-panel);
 }
 
-/* Wider than the content column: the 108px title needs ~1100px to stay on one line. */
 .site-header-inner {
-  max-width: 72rem;
   padding-block: var(--space-s);
 }
 
 /* 4.2 BRAND (LOGO + TITLE) */
 
-/* Sized on the link so the logo scales in em alongside the title. */
+/* The link's font-size sets the emblem (1em) and gap; the title sets its own. */
 .site-brand {
   display: inline-flex;
   align-items: center;
   gap: 0.25em;
-  font-size: var(--fs-display);
+  font-size: var(--size-emblem);
   color: var(--text-title);
   text-decoration: none;
 }
@@ -232,6 +234,7 @@ summary:focus-visible,
 
 .site-title {
   font-family: var(--font-title);
+  font-size: var(--fs-display);
   font-weight: 700;
   line-height: 0.95;
   letter-spacing: 0.01em;
