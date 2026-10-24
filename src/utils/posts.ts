@@ -23,14 +23,44 @@ export function linkHost(url: string): string {
   return new URL(url).hostname.replace(/^www\./, '');
 }
 
-/** Masthead edition line: volume counts years since launch, number counts published posts. */
-export async function getEdition(): Promise<{ volume: number; number: string; date: Date } | null> {
+/** Volumes count years from launch: 2026 is Vol. 1. */
+export function volumeOf(date: Date): number {
+  return date.getUTCFullYear() - 2026 + 1;
+}
+
+export interface Serial {
+  volume: number;
+  number: number;
+}
+
+/**
+ * Each post's issue number, restarting at 1 every volume, in publish order.
+ * Derived, not stored: back-dating or deleting a post renumbers the ones after it.
+ */
+export async function getSerials(): Promise<Map<string, Serial>> {
+  const oldestFirst = [...(await getPublishedPosts())].sort(
+    (a, b) => a.data.publishedDate.valueOf() - b.data.publishedDate.valueOf() || a.id.localeCompare(b.id),
+  );
+  const serials = new Map<string, Serial>();
+  const counts = new Map<number, number>();
+  for (const post of oldestFirst) {
+    const volume = volumeOf(post.data.publishedDate);
+    const number = (counts.get(volume) ?? 0) + 1;
+    counts.set(volume, number);
+    serials.set(post.id, { volume, number });
+  }
+  return serials;
+}
+
+/** "Vol. 1 · No. 014" */
+export function formatSerial({ volume, number }: Serial): string {
+  return `Vol. ${volume} · No. ${String(number).padStart(3, '0')}`;
+}
+
+/** Masthead edition line: the current volume and the latest post's date. */
+export async function getEdition(): Promise<{ volume: number; date: Date } | null> {
   const posts = await getPublishedPosts();
   if (posts.length === 0) return null;
   const latest = posts[0].data.publishedDate;
-  return {
-    volume: latest.getUTCFullYear() - 2026 + 1,
-    number: String(posts.length).padStart(3, '0'),
-    date: latest,
-  };
+  return { volume: volumeOf(latest), date: latest };
 }

@@ -3,7 +3,7 @@ import { render } from 'astro:content';
 import { Image } from 'astro:assets';
 import Base from '../../layouts/Base.astro';
 import CategoryList from '../../components/CategoryList.astro';
-import { getPublishedPosts, formatDate, linkHost, type Post } from '../../utils/posts';
+import { getPublishedPosts, getSerials, formatDate, formatSerial, linkHost, type Post } from '../../utils/posts';
 import { isFieldNote, portfolioUrl } from '../../utils/portfolio';
 import { getSection, getCategories } from '../../utils/taxonomy';
 
@@ -20,6 +20,7 @@ const { post } = Astro.props;
 const { title, summary, link, cover, coverAlt, publishedDate, updatedDate, section, categories } = post.data;
 const { Content } = await render(post);
 const sectionInfo = getSection(section);
+const serial = (await getSerials()).get(post.id)!;
 const categoryLabels = getCategories(categories).map((c) => c.label);
 const canonical = isFieldNote(post) ? portfolioUrl(post) : undefined;
 
@@ -50,6 +51,7 @@ const jsonLd = {
   <article>
     <header class="post-header">
       <p class="post-meta">
+        {formatSerial(serial)} //{' '}
         {/* Field Notes name their section at the head of the category list instead. */}
         {
           section !== 'field-note' && (

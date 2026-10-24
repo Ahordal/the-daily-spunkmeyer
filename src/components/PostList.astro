@@ -1,7 +1,7 @@
 ---
 import { Image } from 'astro:assets';
 import CategoryList from './CategoryList.astro';
-import { formatDate, linkHost, type Post } from '../utils/posts';
+import { formatDate, formatSerial, getSerials, linkHost, type Post } from '../utils/posts';
 import { getSection } from '../utils/taxonomy';
 
 interface Props {
@@ -11,6 +11,7 @@ interface Props {
 }
 
 const { posts, showSection = true } = Astro.props;
+const serials = await getSerials();
 ---
 
 <ol class="post-list">
@@ -27,6 +28,7 @@ const { posts, showSection = true } = Astro.props;
           )}
           <div class="post-item-body">
             <p class="post-meta">
+              {formatSerial(serials.get(post.id)!)} //{' '}
               {/* Field Notes name their section at the head of the category list instead. */}
               {showSection && section !== 'field-note' && <>{getSection(section).singular} // </>}
               <time datetime={publishedDate.toISOString()}>{formatDate(publishedDate)}</time>
