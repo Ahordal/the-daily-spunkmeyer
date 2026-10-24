@@ -42,8 +42,16 @@ const countLabel = (n: number) => `${n} ${n === 1 ? 'post' : 'posts'}`;
       <label for="category-filter">Category</label>
       <span class="swatch" id="category-swatch" aria-hidden="true" hidden></span>
       <select id="category-filter">
-        <option value="">All categories</option>
-        {CATEGORIES.map((c) => <option value={c.id} data-color={c.color}>{c.label}</option>)}
+        <!-- Swatches only render under appearance: base-select; older parsers drop the spans. -->
+        <option value=""><span class="swatch swatch-blank" aria-hidden="true" />All categories</option>
+        {
+          CATEGORIES.map((c) => (
+            <option value={c.id} data-color={c.color}>
+              <span class="swatch" style={`--category: ${c.color}`} aria-hidden="true" />
+              {c.label}
+            </option>
+          ))
+        }
       </select>
     </div>
   </div>

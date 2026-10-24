@@ -649,6 +649,49 @@ a.category:hover {
   border-color: var(--text-title);
 }
 
+/* Customizable select shows each category's swatch in the list; other browsers keep the native picker. */
+@supports (appearance: base-select) {
+  .filter-select select,
+  .filter-select ::picker(select) {
+    appearance: base-select;
+  }
+
+  .filter-select ::picker(select) {
+    margin-top: 0.25rem;
+    padding-block: 0.25rem;
+    border: 1px solid var(--border-panel);
+    background: var(--bg-panel);
+  }
+
+  .filter-select option {
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+    min-height: 2.5rem;
+    padding-inline: 0.75rem;
+    color: var(--text-title);
+    cursor: pointer;
+  }
+
+  .filter-select option:hover,
+  .filter-select option:focus-visible {
+    background: var(--border-panel);
+  }
+
+  .filter-select option:checked {
+    font-weight: 700;
+  }
+
+  .filter-select option::checkmark {
+    display: none;
+  }
+
+  /* Keeps "All categories" aligned with the coloured rows below it. */
+  .swatch-blank {
+    background: transparent;
+  }
+}
+
 /* 8.2 YEARS & MONTHS */
 
 .archive-year-title {
