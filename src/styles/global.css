@@ -6,7 +6,7 @@
 /* 1.0 FONTS
 
    Self-hosted via @fontsource, imported in Base.astro. Barlow Condensed
-   700 for the site title, 600 for labels and nav; Nunito Sans (variable) for everything else. */
+   400-900 (and 400/700 italic) for all text, site title included. */
 
 /* 1.1 BOX SIZING */
 
@@ -121,7 +121,9 @@ summary:focus-visible,
   --border-panel: #c8cad6;
   --accent: #c8202a;
   --focus-ring: #232f78;
-
+  /* The emblem's own fills, for the masthead rule. */
+  --emblem-red: #e8222b;
+  --emblem-navy: #232f78;
   --space-xs: 0.5rem;
   --space-s: 1rem;
   --space-m: 2rem;
@@ -129,7 +131,7 @@ summary:focus-visible,
   --container: 60rem;
   --measure: 68ch;
 
-  --font-body: 'Nunito Sans Variable', 'Avenir Next', avenir, system-ui, -apple-system, 'Segoe UI', sans-serif;
+  --font-body: 'Barlow Condensed', 'Arial Narrow', system-ui, -apple-system, 'Segoe UI', sans-serif;
   --font-display: var(--font-body);
   --font-title: 'Barlow Condensed', 'Arial Narrow', var(--font-body);
   --font-label: var(--font-title);
@@ -149,7 +151,11 @@ summary:focus-visible,
   /* Header emblem, sized on its own so title tweaks never move it: up to 108px,
      shrinking on phones in step with the one-line title. */
   --size-emblem: clamp(1rem, calc((100vw - 2rem) / 10.2), 6.75rem);
-  --fs-3xl: clamp(2.25rem, 6vw, 3.25rem); /* post title */
+  /* Headlines shrink on phones too, so they don't outsize the masthead; floors keep them above body text. */
+  --fs-3xl: clamp(1.75rem, 6vw, 3.25rem); /* post title: 28px phones, 52px desktop */
+  --fs-list-title: clamp(1.375rem, 4vw, 2rem); /* 22px phones, 32px desktop */
+  /* Page title keeps desktop's 32:108 ratio to the emblem; the 20px floor keeps it above body text and labels. */
+  --fs-page-title: max(1.25rem, calc(var(--size-emblem) * 32 / 108));
 }
 
 /* ///////////////////////////////////////////// 3. PAGE LAYOUT ////////////////////////////////////////////// */
@@ -165,8 +171,84 @@ summary:focus-visible,
 
 /* 3.2 MAIN */
 
+/* Sticky footer: on short pages main stretches so the footer sits at the screen's bottom. */
+body {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+  min-height: 100dvh;
+}
+
 .site-main {
+  flex: 1 0 auto;
   padding-block: var(--space-m) var(--space-l);
+}
+
+/* 3.3 FOOTER
+
+   Signed off with a slash mark: the masthead rule's black, navy and red as three slanted bars. */
+
+.site-footer-inner {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  align-items: center;
+  gap: 0.25rem var(--space-m);
+  padding-block: var(--space-s) max(var(--space-s), env(safe-area-inset-bottom, 0px));
+  border-top: 1px solid var(--border-panel);
+  font-family: var(--font-label);
+  font-weight: 600;
+  font-size: var(--fs-xs);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+}
+
+.site-footer-credit {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.6rem;
+}
+
+.slash-mark {
+  display: inline-flex;
+  gap: 3px;
+}
+
+.slash-mark span {
+  width: 0.7rem;
+  height: 0.75rem;
+  clip-path: polygon(0.3rem 0, 100% 0, calc(100% - 0.3rem) 100%, 0 100%);
+}
+
+.slash-mark span:nth-child(1) {
+  background: var(--text-title);
+}
+
+.slash-mark span:nth-child(2) {
+  background: var(--emblem-navy);
+}
+
+.slash-mark span:nth-child(3) {
+  background: var(--emblem-red);
+}
+
+.site-footer-links {
+  list-style: none;
+  display: flex;
+  flex-wrap: wrap;
+  column-gap: 1.5rem;
+}
+
+.site-footer-links a {
+  display: inline-block;
+  padding-block: 0.4rem;
+  color: var(--text-muted);
+  text-decoration: none;
+}
+
+.site-footer-links a:hover {
+  color: var(--accent);
 }
 
 /* ///////////////////////////////////////////// 4. SITE HEADER ////////////////////////////////////////////// */
@@ -201,12 +283,48 @@ summary:focus-visible,
   color: var(--text-muted);
 }
 
-/* Thick-thin rule: 4px, a 3px gap, then 1px. */
+/* Stripe bar: black handing off to the emblem's navy and red along slanted
+   cuts. Sized by --stripe-h and --stripe-seg so it can be reused. */
+.stripe-bar {
+  --stripe-h: 4px;
+  --stripe-seg: 5rem;
+  display: flex;
+  align-items: flex-start;
+}
+
+.stripe-bar span {
+  height: var(--stripe-h);
+}
+
+/* Each cut leans its own height; the offsets leave a slim slanted gap between colours. */
+.stripe-bar span:nth-child(1) {
+  flex: 1;
+  background: var(--text-title);
+  clip-path: polygon(0 0, 100% 0, calc(100% - var(--stripe-h)) 100%, 0 100%);
+}
+
+.stripe-bar span:nth-child(2),
+.stripe-bar span:nth-child(3) {
+  flex: none;
+  width: var(--stripe-seg);
+  margin-left: -1px;
+}
+
+.stripe-bar span:nth-child(2) {
+  background: var(--emblem-navy);
+  clip-path: polygon(var(--stripe-h) 0, 100% 0, calc(100% - var(--stripe-h)) 100%, 0 100%);
+}
+
+.stripe-bar span:nth-child(3) {
+  background: var(--emblem-red);
+  clip-path: polygon(var(--stripe-h) 0, 100% 0, 100% 100%, 0 100%);
+}
+
+/* Thick-thin rule: the 4px stripe bar, a 3px gap, then a 1px navy line. */
 .masthead-rule {
-  height: 3px;
-  margin-top: var(--space-s);
-  border-top: 4px solid var(--text-title);
-  border-bottom: 1px solid var(--text-title);
+  height: 8px;
+  margin-top: var(--space-xs);
+  border-bottom: 1px solid var(--emblem-navy);
 }
 
 /* 4.2 BRAND (LOGO + TITLE) */
@@ -216,7 +334,7 @@ summary:focus-visible,
   display: inline-flex;
   align-self: flex-start;
   align-items: center;
-  gap: 0.25em;
+  gap: calc(0.25em + 0.077em); /* plus the emblem's pull-left, so the title stays put */
   font-size: var(--size-emblem);
   color: var(--text-title);
   text-decoration: none;
@@ -231,6 +349,8 @@ summary:focus-visible,
   flex: none;
   width: 1em;
   height: 1em;
+  /* The red edge starts 13.8 of 180 viewBox units in; this squares it with the rule below. */
+  margin-left: -0.077em;
 }
 
 .site-title {
@@ -374,7 +494,7 @@ summary:focus-visible,
     right: 0;
     z-index: 10;
     width: calc(min(16rem, 100% - 2 * var(--space-s)) + var(--space-s));
-    padding: 0.25rem 1rem;
+    padding: 0;
     border: 1px solid var(--border-panel);
     border-block-start: 0;
     border-inline-end: 0;
@@ -398,6 +518,16 @@ summary:focus-visible,
   .site-nav a {
     display: block;
     padding-block: 0.6rem;
+  }
+
+  /* Inset lives on the links, so the row lines run edge to edge and each entry reads as a cell. */
+  .site-header[data-menu] .site-nav a {
+    padding-inline: 1rem;
+  }
+
+  /* Each group's last row skips it: the dark rule or the panel's own border is already there. */
+  .site-nav li:not(:last-child) {
+    border-bottom: 1px solid var(--border-panel);
   }
 
   .site-nav-primary {
@@ -456,7 +586,7 @@ summary:focus-visible,
 
 .post-item-title {
   font-family: var(--font-display);
-  font-size: var(--fs-2xl);
+  font-size: var(--fs-list-title);
   font-weight: 800;
   line-height: 1.15;
   text-wrap: balance;
@@ -539,14 +669,24 @@ summary:focus-visible,
   color: var(--text-muted);
 }
 
-.post-title,
-.page-title {
+.post-title {
   font-family: var(--font-display);
   font-size: var(--fs-3xl);
   font-weight: 900;
   line-height: 1.05;
   color: var(--text-title);
   text-wrap: balance;
+}
+
+/* A section flag, not a headline: the posts listed under it should lead. */
+.page-title {
+  font-family: var(--font-title);
+  font-size: var(--fs-page-title);
+  font-weight: 700;
+  line-height: 1;
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+  color: var(--text-title);
 }
 
 /* 6.2 COVER IMAGE */

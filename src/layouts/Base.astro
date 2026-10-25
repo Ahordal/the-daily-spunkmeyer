@@ -1,7 +1,11 @@
 ---
-import '@fontsource-variable/nunito-sans';
+import '@fontsource/barlow-condensed/400.css';
+import '@fontsource/barlow-condensed/400-italic.css';
 import '@fontsource/barlow-condensed/600.css';
 import '@fontsource/barlow-condensed/700.css';
+import '@fontsource/barlow-condensed/700-italic.css';
+import '@fontsource/barlow-condensed/800.css';
+import '@fontsource/barlow-condensed/900.css';
 import '../styles/global.css';
 import { getImage } from 'astro:assets';
 import type { ImageMetadata } from 'astro';
@@ -47,6 +51,7 @@ const secondaryLinks = [
   { href: '/about/', label: 'About' },
   { href: '/rss.xml', label: 'RSS' },
 ];
+const year = new Date().getFullYear();
 ---
 
 <html lang="en-CA">
@@ -98,7 +103,7 @@ const secondaryLinks = [
           <img src="/logo.svg" alt="" width="44" height="44" />
           <span class="site-title">{siteName}</span>
         </a>
-        <div class="masthead-rule" aria-hidden="true"></div>
+        <div class="masthead-rule stripe-bar" aria-hidden="true"><span></span><span></span><span></span></div>
         <div class="masthead-bar">
           {
             edition && (
@@ -169,5 +174,25 @@ const secondaryLinks = [
     <main class="container site-main">
       <slot />
     </main>
+    <footer class="site-footer">
+      <div class="container">
+        <div class="site-footer-inner">
+          <p class="site-footer-credit">
+            <span class="slash-mark" aria-hidden="true"><span></span><span></span><span></span></span>
+            &copy; {year} Alex Hordal
+          </p>
+          <ul class="site-footer-links">
+            {
+              secondaryLinks.map((l) => (
+                <li>
+                  <a href={l.href}>{l.label}</a>
+                </li>
+              ))
+            }
+            <li><a href="https://www.alexhordal.ca/">alexhordal.ca</a></li>
+          </ul>
+        </div>
+      </div>
+    </footer>
   </body>
 </html>
