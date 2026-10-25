@@ -1,5 +1,6 @@
 ---
 import '@fontsource-variable/nunito-sans';
+import '@fontsource/barlow-condensed/600.css';
 import '@fontsource/barlow-condensed/700.css';
 import '../styles/global.css';
 import { getImage } from 'astro:assets';
@@ -93,20 +94,29 @@ const secondaryLinks = [
   <body>
     <header class="site-header">
       <div class="container site-header-inner">
-        {
-          edition && (
-            <p class="masthead-edition">
-              Vol. {edition.volume} //{' '}
-              <time datetime={edition.date.toISOString()}>{formatDate(edition.date)}</time>
-            </p>
-          )
-        }
         <a class="site-brand" href="/">
           <img src="/logo.svg" alt="" width="44" height="44" />
           <span class="site-title">{siteName}</span>
         </a>
         <div class="masthead-rule" aria-hidden="true"></div>
-        <nav class="site-nav" aria-label="Site">
+        <div class="masthead-bar">
+          {
+            edition && (
+              <p class="masthead-edition">
+                Vol. {edition.volume} //{' '}
+                <time datetime={edition.date.toISOString()}>{formatDate(edition.date)}</time>
+              </p>
+            )
+          }
+          <!-- Hidden until the script below runs, so without JS the full nav simply stays open. -->
+          <button type="button" class="nav-toggle" aria-expanded="false" aria-controls="site-nav" hidden>
+            Menu
+            <svg viewBox="0 0 12 12" width="12" height="12" aria-hidden="true">
+              <path d="M2 4.5l4 4 4-4" fill="none" stroke="currentColor" stroke-width="1.75" />
+            </svg>
+          </button>
+        </div>
+        <nav class="site-nav" id="site-nav" aria-label="Site">
           <ul class="site-nav-primary">
             {
               primaryLinks.map((l) => (
@@ -132,6 +142,30 @@ const secondaryLinks = [
         </nav>
       </div>
     </header>
+    <!-- Inline so the menu collapses before first paint instead of flashing open on phones. -->
+    <script is:inline>
+      (() => {
+        const header = document.querySelector('.site-header');
+        const toggle = header.querySelector('.nav-toggle');
+        const setOpen = (open) => {
+          header.dataset.menu = open ? 'open' : 'closed';
+          toggle.setAttribute('aria-expanded', String(open));
+        };
+        setOpen(false);
+        toggle.hidden = false;
+        toggle.addEventListener('click', () => setOpen(header.dataset.menu === 'closed'));
+        // The menu floats over the page, so a tap anywhere else should dismiss it.
+        document.addEventListener('click', (e) => {
+          if (header.dataset.menu === 'open' && !e.target.closest('#site-nav, .nav-toggle')) setOpen(false);
+        });
+        header.addEventListener('keydown', (e) => {
+          if (e.key === 'Escape' && header.dataset.menu === 'open') {
+            setOpen(false);
+            toggle.focus();
+          }
+        });
+      })();
+    </script>
     <main class="container site-main">
       <slot />
     </main>
