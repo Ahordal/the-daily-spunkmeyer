@@ -6,17 +6,16 @@ import { getSection, type SectionId } from '../utils/taxonomy';
 
 interface Props {
   section: SectionId;
-  description: string;
 }
 
-const { section, description } = Astro.props;
-const { label } = getSection(section);
+const { section } = Astro.props;
+const { label, description } = getSection(section);
 const posts = await getPostsInSection(section);
 ---
 
 <Base title={label} description={description}>
   <header class="page-header">
-    <h1 class="page-title">{label}</h1>
+    <h1 class="page-title" data-section={section}><span>{label}</span></h1>
     <p class="page-intro"><slot name="intro">{description}</slot></p>
   </header>
   {

@@ -8,22 +8,32 @@ interface Props {
   posts: Post[];
   /** Hide the section label on a section's own page, where it's implied. */
   showSection?: boolean;
+  /** Give the first post the front page's lead treatment: full-width cover, bigger headline. */
+  lead?: boolean;
+  /** 3 when the list sits under its own section heading, as on the front page. */
+  headingLevel?: 2 | 3;
 }
 
-const { posts, showSection = true } = Astro.props;
+const { posts, showSection = true, lead = false, headingLevel = 2 } = Astro.props;
+const Heading = headingLevel === 3 ? 'h3' : 'h2';
 const serials = await getSerials();
 ---
 
 <ol class="post-list">
   {
-    posts.map((post) => {
+    posts.map((post, i) => {
       const { title, summary, cover, publishedDate, section, categories, link } = post.data;
       const href = `/posts/${post.id}/`;
+      const isLead = lead && i === 0;
       return (
-        <li class:list={['post-item', { 'has-cover': cover }]}>
+        <li class:list={['post-item', { 'has-cover': cover, 'post-item-lead': isLead }]}>
           {cover && (
             <a class="post-item-cover" href={href} tabindex="-1" aria-hidden="true">
-              <Image src={cover} alt="" widths={[320, 640]} sizes="(min-width: 720px) 240px, 100vw" />
+              {isLead ? (
+                <Image src={cover} alt="" widths={[640, 1280]} sizes="(min-width: 52rem) 640px, 100vw" />
+              ) : (
+                <Image src={cover} alt="" widths={[320, 640]} sizes="(min-width: 720px) 240px, 100vw" />
+              )}
             </a>
           )}
           <div class="post-item-body">
@@ -33,9 +43,9 @@ const serials = await getSerials();
               {showSection && section !== 'field-note' && <>{getSection(section).singular} // </>}
               <time datetime={publishedDate.toISOString()}>{formatDate(publishedDate)}</time>
             </p>
-            <h2 class="post-item-title">
+            <Heading class="post-item-title">
               <a href={href}>{title}</a>
-            </h2>
+            </Heading>
             {summary && <p class="post-item-summary">{summary}</p>}
             {link && (
               <p class="post-item-link">

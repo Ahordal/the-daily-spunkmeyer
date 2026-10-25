@@ -1,17 +1,86 @@
 ---
 import Base from '../layouts/Base.astro';
 import PostList from '../components/PostList.astro';
-import { getPublishedPosts } from '../utils/posts';
+import { formatDate, getPostsInSection, linkHost } from '../utils/posts';
+import { getSection } from '../utils/taxonomy';
 
-// The front page mixes every section; the archive holds the rest.
-const posts = (await getPublishedPosts()).slice(0, 12);
+// Latest: the newest from each section, each in its own block. Empty sections drop out.
+const articles = (await getPostsInSection('article')).slice(0, 3);
+const dispatches = (await getPostsInSection('dispatch')).slice(0, 5);
+const fieldNotes = (await getPostsInSection('field-note')).slice(0, 2);
+const [article, dispatch, fieldNote] = (['article', 'dispatch', 'field-note'] as const).map(getSection);
 ---
 
 <Base>
-  <header class="page-header">
-    <h1 class="page-title">Latest</h1>
-    <p class="page-intro">The newest from every section.</p>
-  </header>
-  <PostList posts={posts} />
-  <p class="list-more"><a href="/archive/">Everything in the archive</a></p>
+  <h1 class="visually-hidden">Latest</h1>
+  <div class:list={['front-top', { 'has-rail': dispatches.length > 0 }]}>
+    {
+      articles.length > 0 && (
+        <section class="front-block" aria-labelledby="front-articles">
+          <header class="page-header">
+            <h2 class="page-title" data-section="article" id="front-articles">
+              <span>{article.label}</span>
+            </h2>
+            <p class="page-intro">{article.description}</p>
+          </header>
+          <PostList posts={articles} showSection={false} lead headingLevel={3} />
+          <p class="list-more">
+            <a href={article.path}>All articles</a>
+          </p>
+        </section>
+      )
+    }
+    {
+      dispatches.length > 0 && (
+        <aside class="front-block front-rail" aria-labelledby="front-dispatches">
+          <header class="page-header">
+            <h2 class="page-title" data-section="dispatch" id="front-dispatches">
+              <span>{dispatch.label}</span>
+            </h2>
+            <p class="page-intro">Quick finds</p>
+          </header>
+          <ol class="rail-list">
+            {dispatches.map(({ id, data: { title, publishedDate, link } }) => (
+              <li>
+                <p class="post-meta">
+                  <time datetime={publishedDate.toISOString()}>{formatDate(publishedDate)}</time>
+                  {link && (
+                    <>
+                      {' '}
+                      · <span class="rail-source">{linkHost(link)}</span>
+                    </>
+                  )}
+                </p>
+                <h3 class="rail-title">
+                  <a href={`/posts/${id}/`}>{title}</a>
+                </h3>
+              </li>
+            ))}
+          </ol>
+          <p class="list-more">
+            <a href={dispatch.path}>All dispatches</a>
+          </p>
+        </aside>
+      )
+    }
+  </div>
+  {
+    fieldNotes.length > 0 && (
+      <section class="front-block front-notes" aria-labelledby="front-field-notes">
+        <header class="page-header">
+          <h2 class="page-title" data-section="field-note" id="front-field-notes">
+            <span>{fieldNote.label}</span>
+          </h2>
+          <p class="page-intro">{fieldNote.description} Also on alexhordal.ca.</p>
+        </header>
+        <PostList posts={fieldNotes} showSection={false} headingLevel={3} />
+        <p class="list-more">
+          <a href={fieldNote.path}>All field notes</a>
+        </p>
+      </section>
+    )
+  }
+  <p class="list-more">
+    <a href="/archive/">Everything in the archive</a>
+  </p>
 </Base>

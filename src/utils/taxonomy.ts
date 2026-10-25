@@ -2,10 +2,28 @@
 // A post has exactly one section and any number of categories; any category fits any section.
 
 export const SECTIONS = [
-  { id: 'article', label: 'Articles', singular: 'Article', path: '/articles/' },
-  { id: 'dispatch', label: 'Dispatches', singular: 'Dispatch', path: '/dispatches/' },
+  {
+    id: 'article',
+    label: 'Articles',
+    singular: 'Article',
+    path: '/articles/',
+    description: 'Longer posts on The Daily Spunkmeyer.',
+  },
+  {
+    id: 'dispatch',
+    label: 'Dispatches',
+    singular: 'Dispatch',
+    path: '/dispatches/',
+    description: 'Quick finds: links, clips and things worth a look.',
+  },
   // Also published on alexhordal.ca/field_notes; see utils/portfolio.ts.
-  { id: 'field-note', label: 'Field Notes', singular: 'Field Note', path: '/field_notes/' },
+  {
+    id: 'field-note',
+    label: 'Field Notes',
+    singular: 'Field Note',
+    path: '/field_notes/',
+    description: 'Notes on cartography, maps and app design.',
+  },
 ] as const;
 
 // Colours follow the Semiotic Standard palette (bar Tech and AI); the map/dev trio share the logo's red and navys.

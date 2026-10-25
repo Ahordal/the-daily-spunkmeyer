@@ -10,7 +10,18 @@ import '../styles/global.css';
 import { getImage } from 'astro:assets';
 import type { ImageMetadata } from 'astro';
 import { getEdition, formatDate } from '../utils/posts';
-import { SECTIONS } from '../utils/taxonomy';
+import { SECTIONS, type SectionId } from '../utils/taxonomy';
+// Font Awesome Free icons (CC BY 4.0, fontawesome.com), drawn as inline SVG at build time.
+import {
+  faBolt,
+  faBoxArchive,
+  faCircleUser,
+  faMapLocationDot,
+  faNewspaper,
+  faPaperPlane,
+  faRss,
+  type IconDefinition,
+} from '@fortawesome/free-solid-svg-icons';
 
 interface Props {
   title?: string;
@@ -45,12 +56,22 @@ const edition = await getEdition();
 const path = Astro.url.pathname;
 // "/" would prefix-match every page, so Latest only lights up on the home page itself.
 const isCurrent = (href: string) => (href === '/' ? path === '/' : path.startsWith(href));
-const primaryLinks = [{ href: '/', label: 'Latest' }, ...SECTIONS.map((s) => ({ href: s.path, label: s.label }))];
-const secondaryLinks = [
-  { href: '/archive/', label: 'Archive' },
-  { href: '/about/', label: 'About' },
-  { href: '/rss.xml', label: 'RSS' },
+const sectionIcons: Record<SectionId, IconDefinition> = {
+  article: faNewspaper,
+  dispatch: faPaperPlane,
+  'field-note': faMapLocationDot,
+};
+const primaryLinks = [
+  { href: '/', label: 'Latest', icon: faBolt },
+  ...SECTIONS.map((s) => ({ href: s.path, label: s.label, icon: sectionIcons[s.id] })),
 ];
+const secondaryLinks = [
+  { href: '/archive/', label: 'Archive', icon: faBoxArchive },
+  { href: '/about/', label: 'About', icon: faCircleUser },
+  { href: '/rss.xml', label: 'RSS', icon: faRss },
+];
+const iconViewBox = ({ icon: [w, h] }: IconDefinition) => `0 0 ${w} ${h}`;
+const iconPath = ({ icon }: IconDefinition) => [icon[4]].flat().join(' ');
 const year = new Date().getFullYear();
 ---
 
@@ -115,7 +136,7 @@ const year = new Date().getFullYear();
           }
           <!-- Hidden until the script below runs, so without JS the full nav simply stays open. -->
           <button type="button" class="nav-toggle" aria-expanded="false" aria-controls="site-nav" hidden>
-            Menu
+            Nav
             <svg viewBox="0 0 12 12" width="12" height="12" aria-hidden="true">
               <path d="M2 4.5l4 4 4-4" fill="none" stroke="currentColor" stroke-width="1.75" />
             </svg>
@@ -127,6 +148,9 @@ const year = new Date().getFullYear();
               primaryLinks.map((l) => (
                 <li>
                   <a href={l.href} aria-current={isCurrent(l.href) ? 'page' : undefined}>
+                    <svg class="nav-icon" viewBox={iconViewBox(l.icon)} aria-hidden="true">
+                      <path d={iconPath(l.icon)} fill="currentColor" />
+                    </svg>
                     {l.label}
                   </a>
                 </li>
@@ -138,6 +162,9 @@ const year = new Date().getFullYear();
               secondaryLinks.map((l) => (
                 <li>
                   <a href={l.href} aria-current={isCurrent(l.href) ? 'page' : undefined}>
+                    <svg class="nav-icon" viewBox={iconViewBox(l.icon)} aria-hidden="true">
+                      <path d={iconPath(l.icon)} fill="currentColor" />
+                    </svg>
                     {l.label}
                   </a>
                 </li>
@@ -181,16 +208,7 @@ const year = new Date().getFullYear();
             <span class="slash-mark" aria-hidden="true"><span></span><span></span><span></span></span>
             &copy; {year} Alex Hordal
           </p>
-          <ul class="site-footer-links">
-            {
-              secondaryLinks.map((l) => (
-                <li>
-                  <a href={l.href}>{l.label}</a>
-                </li>
-              ))
-            }
-            <li><a href="https://www.alexhordal.ca/">alexhordal.ca</a></li>
-          </ul>
+          <a class="site-footer-link" href="https://www.alexhordal.ca/">alexhordal.ca</a>
         </div>
       </div>
     </footer>

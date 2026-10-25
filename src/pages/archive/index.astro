@@ -21,7 +21,7 @@ const countLabel = (n: number) => `${n} ${n === 1 ? 'post' : 'posts'}`;
 
 <Base title="Archive" description="Everything on The Daily Spunkmeyer, by year and month.">
   <header class="page-header">
-    <h1 class="page-title">Archive</h1>
+    <h1 class="page-title" data-section="archive"><span>Archive</span></h1>
     <p class="post-meta" id="archive-count" aria-live="polite">{countLabel(posts.length)}</p>
   </header>
 
