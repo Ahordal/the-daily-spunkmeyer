@@ -22,24 +22,30 @@ export const SECTIONS = [
     label: 'Field Notes',
     singular: 'Field Note',
     path: '/field_notes/',
-    description: 'Notes on cartography, maps and app design.',
+    description: 'Map, design and code: my projects and how they are made.',
   },
 ] as const;
 
-// Colours follow the Semiotic Standard palette (bar Tech and AI); the map/dev trio share the logo's red and navys.
+// Brighter, mid-toned squares, kept clear of the darker topographic section tabs.
+// Order is mapping, then building, then field and personal; posts list their categories in this order.
 export const CATEGORIES = [
+  // Mapping
   { id: 'cartography', label: 'Cartography', color: '#e8222b' },
-  { id: 'maps', label: 'Maps', color: '#232f78' },
-  { id: 'app-design', label: 'App Design', color: '#6c8ad8' },
-  { id: 'film', label: 'Film & Sci-Fi', color: '#17171c' },
-  { id: 'gaming', label: 'Gaming', color: '#e36f1e' },
-  { id: 'outdoors', label: 'Outdoors & Travel', color: '#2e6b3a' },
+  { id: 'terrain', label: 'Terrain & Relief', color: '#b07a3b' },
+  { id: 'gis-data', label: 'GIS & Data', color: '#13868a' },
+  { id: 'web-maps', label: 'Web Maps', color: '#3a6fd8' },
+  { id: 'dataviz', label: 'Data Visualization', color: '#e9a227' },
+  // Building
+  { id: 'building-with-ai', label: 'Building with AI', color: '#6b4fa0' },
+  { id: 'ui-design', label: 'UI Design', color: '#d6458b' },
+  { id: 'ux', label: 'UX', color: '#45b5d6' },
+  { id: 'web-dev', label: 'Web Development', color: '#4a5568' },
+  { id: 'tools', label: 'Tools & Workflow', color: '#9aa5b1' },
+  // Field and personal
+  { id: 'field', label: 'Field Experience', color: '#f26b1d' }, // safety orange
+  { id: 'outdoors', label: 'Outdoors', color: '#5fa85a' },
+  { id: 'games-film', label: 'Games & Film', color: '#17171c' },
   { id: 'life', label: 'Life', color: '#8c847e' },
-  { id: 'memes', label: 'Memes', color: '#f4a259' },
-  { id: 'clips', label: 'Clips', color: '#7fb685' },
-  // Outside the Semiotic palette on purpose: no hues left there that read apart from the nine above.
-  { id: 'tech', label: 'Tech', color: '#13868a' },
-  { id: 'ai', label: 'AI', color: '#6b4fa0' },
 ] as const;
 
 export type SectionId = (typeof SECTIONS)[number]['id'];

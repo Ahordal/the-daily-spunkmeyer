@@ -20,7 +20,7 @@ const posts = await getPostsInSection(section);
   </header>
   {
     posts.length > 0 ? (
-      <PostList posts={posts} showSection={false} />
+      <PostList posts={posts} />
     ) : (
       <p class="empty-state">Nothing here yet.</p>
     )

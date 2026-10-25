@@ -2,20 +2,14 @@
 import { Image } from 'astro:assets';
 import CategoryList from './CategoryList.astro';
 import { formatDate, formatSerial, getSerials, linkHost, type Post } from '../utils/posts';
-import { getSection } from '../utils/taxonomy';
 
 interface Props {
   posts: Post[];
-  /** Hide the section label on a section's own page, where it's implied. */
-  showSection?: boolean;
   /** Give the first post the front page's lead treatment: full-width cover, bigger headline. */
   lead?: boolean;
-  /** 3 when the list sits under its own section heading, as on the front page. */
-  headingLevel?: 2 | 3;
 }
 
-const { posts, showSection = true, lead = false, headingLevel = 2 } = Astro.props;
-const Heading = headingLevel === 3 ? 'h3' : 'h2';
+const { posts, lead = false } = Astro.props;
 const serials = await getSerials();
 ---
 
@@ -39,13 +33,11 @@ const serials = await getSerials();
           <div class="post-item-body">
             <p class="post-meta">
               {formatSerial(serials.get(post.id)!)} //{' '}
-              {/* Field Notes name their section at the head of the category list instead. */}
-              {showSection && section !== 'field-note' && <>{getSection(section).singular} // </>}
               <time datetime={publishedDate.toISOString()}>{formatDate(publishedDate)}</time>
             </p>
-            <Heading class="post-item-title">
+            <h2 class="post-item-title">
               <a href={href}>{title}</a>
-            </Heading>
+            </h2>
             {summary && <p class="post-item-summary">{summary}</p>}
             {link && (
               <p class="post-item-link">

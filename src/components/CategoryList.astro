@@ -3,7 +3,7 @@ import { getCategories, getSection, type CategoryId, type SectionId } from '../u
 
 interface Props {
   ids: readonly CategoryId[];
-  /** A Field Note leads its list with the section, ahead of the categories. */
+  /** Leads the list, ahead of the categories. */
   section?: SectionId;
   /** Link each category to the archive, filtered to it. */
   linked?: boolean;
@@ -11,34 +11,41 @@ interface Props {
 
 const { ids, section, linked = true } = Astro.props;
 const categories = getCategories(ids);
-const lead = section === 'field-note' ? getSection(section) : null;
+const lead = section ? getSection(section) : null;
 ---
 
 {
   (lead || categories.length > 0) && (
-    <ul class="category-list" aria-label="Categories">
-      {lead && (
-        <li>
-          {linked ? (
-            <a class="category category-section" href={lead.path}>
-              {lead.label}
-            </a>
-          ) : (
-            <span class="category category-section">{lead.label}</span>
-          )}
-        </li>
-      )}
-      {categories.map((c) => (
-        <li style={`--category: ${c.color}`}>
-          {linked ? (
-            <a class="category" href={`/archive/?category=${c.id}`}>
-              {c.label}
-            </a>
-          ) : (
-            <span class="category">{c.label}</span>
-          )}
-        </li>
-      ))}
-    </ul>
+    <div class="category-row">
+      <span class="filed-in" aria-hidden="true">
+        Filed in:
+      </span>
+      <ul class="category-list" aria-label="Filed in">
+        {lead && (
+          <li>
+            {linked ? (
+              <a class="category category-section" data-section={lead.id} href={lead.path}>
+                {lead.label}
+              </a>
+            ) : (
+              <span class="category category-section" data-section={lead.id}>
+                {lead.label}
+              </span>
+            )}
+          </li>
+        )}
+        {categories.map((c) => (
+          <li style={`--category: ${c.color}`}>
+            {linked ? (
+              <a class="category" href={`/archive/?category=${c.id}`}>
+                {c.label}
+              </a>
+            ) : (
+              <span class="category">{c.label}</span>
+            )}
+          </li>
+        ))}
+      </ul>
+    </div>
   )
 }

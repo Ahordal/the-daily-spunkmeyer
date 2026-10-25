@@ -82,7 +82,7 @@ const countLabel = (n: number) => `${n} ${n === 1 ? 'post' : 'posts'}`;
                       </span>
                       <span class="archive-title">{title}</span>
                       <span class="archive-cats">{cats.map((c) => c.label).join(' · ')}</span>
-                      <span class="archive-section">{getSection(section).singular}</span>
+                      <span class="archive-section" data-section={section}>{getSection(section).singular}</span>
                     </a>
                   </li>
                 );

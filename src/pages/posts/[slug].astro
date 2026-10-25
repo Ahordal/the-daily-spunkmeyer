@@ -52,15 +52,6 @@ const jsonLd = {
     <header class="post-header">
       <p class="post-meta">
         {formatSerial(serial)} //{' '}
-        {/* Field Notes name their section at the head of the category list instead. */}
-        {
-          section !== 'field-note' && (
-            <>
-              <a href={sectionInfo.path}>{sectionInfo.singular}</a>
-              {' // '}
-            </>
-          )
-        }
         <time datetime={publishedDate.toISOString()}>{formatDate(publishedDate)}</time>
         {
           updatedDate && (

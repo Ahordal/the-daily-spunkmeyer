@@ -61,13 +61,14 @@ const sectionIcons: Record<SectionId, IconDefinition> = {
   dispatch: faPaperPlane,
   'field-note': faMapLocationDot,
 };
+// `section` picks the link's tab colour for its icon and current-page state; RSS has none.
 const primaryLinks = [
-  { href: '/', label: 'Latest', icon: faBolt },
-  ...SECTIONS.map((s) => ({ href: s.path, label: s.label, icon: sectionIcons[s.id] })),
+  { href: '/', label: 'Latest', icon: faBolt, section: 'latest' },
+  ...SECTIONS.map((s) => ({ href: s.path, label: s.label, icon: sectionIcons[s.id], section: s.id })),
 ];
 const secondaryLinks = [
-  { href: '/archive/', label: 'Archive', icon: faBoxArchive },
-  { href: '/about/', label: 'About', icon: faCircleUser },
+  { href: '/archive/', label: 'Archive', icon: faBoxArchive, section: 'archive' },
+  { href: '/about/', label: 'About', icon: faCircleUser, section: 'about' },
   { href: '/rss.xml', label: 'RSS', icon: faRss },
 ];
 const iconViewBox = ({ icon: [w, h] }: IconDefinition) => `0 0 ${w} ${h}`;
@@ -147,7 +148,7 @@ const year = new Date().getFullYear();
             {
               primaryLinks.map((l) => (
                 <li>
-                  <a href={l.href} aria-current={isCurrent(l.href) ? 'page' : undefined}>
+                  <a href={l.href} data-section={l.section} aria-current={isCurrent(l.href) ? 'page' : undefined}>
                     <svg class="nav-icon" viewBox={iconViewBox(l.icon)} aria-hidden="true">
                       <path d={iconPath(l.icon)} fill="currentColor" />
                     </svg>
@@ -161,7 +162,7 @@ const year = new Date().getFullYear();
             {
               secondaryLinks.map((l) => (
                 <li>
-                  <a href={l.href} aria-current={isCurrent(l.href) ? 'page' : undefined}>
+                  <a href={l.href} data-section={l.section} aria-current={isCurrent(l.href) ? 'page' : undefined}>
                     <svg class="nav-icon" viewBox={iconViewBox(l.icon)} aria-hidden="true">
                       <path d={iconPath(l.icon)} fill="currentColor" />
                     </svg>

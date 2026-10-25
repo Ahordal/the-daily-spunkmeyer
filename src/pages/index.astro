@@ -1,10 +1,11 @@
 ---
 import Base from '../layouts/Base.astro';
 import PostList from '../components/PostList.astro';
+import CategoryList from '../components/CategoryList.astro';
 import { formatDate, getPostsInSection, linkHost } from '../utils/posts';
 import { getSection } from '../utils/taxonomy';
 
-// Latest: the newest from each section, each in its own block. Empty sections drop out.
+// Latest: the newest from each section under one header; each post's filed-in line names its section.
 const articles = (await getPostsInSection('article')).slice(0, 3);
 const dispatches = (await getPostsInSection('dispatch')).slice(0, 5);
 const fieldNotes = (await getPostsInSection('field-note')).slice(0, 2);
@@ -12,18 +13,15 @@ const [article, dispatch, fieldNote] = (['article', 'dispatch', 'field-note'] as
 ---
 
 <Base>
-  <h1 class="visually-hidden">Latest</h1>
+  <header class="page-header">
+    <h1 class="page-title" data-section="latest"><span>Latest</span></h1>
+    <p class="page-intro">The newest from each section.</p>
+  </header>
   <div class:list={['front-top', { 'has-rail': dispatches.length > 0 }]}>
     {
       articles.length > 0 && (
-        <section class="front-block" aria-labelledby="front-articles">
-          <header class="page-header">
-            <h2 class="page-title" data-section="article" id="front-articles">
-              <span>{article.label}</span>
-            </h2>
-            <p class="page-intro">{article.description}</p>
-          </header>
-          <PostList posts={articles} showSection={false} lead headingLevel={3} />
+        <section class="front-block" aria-label={article.label}>
+          <PostList posts={articles} lead />
           <p class="list-more">
             <a href={article.path}>All articles</a>
           </p>
@@ -32,15 +30,9 @@ const [article, dispatch, fieldNote] = (['article', 'dispatch', 'field-note'] as
     }
     {
       dispatches.length > 0 && (
-        <aside class="front-block front-rail" aria-labelledby="front-dispatches">
-          <header class="page-header">
-            <h2 class="page-title" data-section="dispatch" id="front-dispatches">
-              <span>{dispatch.label}</span>
-            </h2>
-            <p class="page-intro">Quick finds</p>
-          </header>
+        <aside class="front-block front-rail" aria-label={dispatch.label}>
           <ol class="rail-list">
-            {dispatches.map(({ id, data: { title, publishedDate, link } }) => (
+            {dispatches.map(({ id, data: { title, publishedDate, link, categories, section } }) => (
               <li>
                 <p class="post-meta">
                   <time datetime={publishedDate.toISOString()}>{formatDate(publishedDate)}</time>
@@ -51,9 +43,10 @@ const [article, dispatch, fieldNote] = (['article', 'dispatch', 'field-note'] as
                     </>
                   )}
                 </p>
-                <h3 class="rail-title">
+                <h2 class="rail-title">
                   <a href={`/posts/${id}/`}>{title}</a>
-                </h3>
+                </h2>
+                <CategoryList ids={categories} section={section} />
               </li>
             ))}
           </ol>
@@ -66,14 +59,8 @@ const [article, dispatch, fieldNote] = (['article', 'dispatch', 'field-note'] as
   </div>
   {
     fieldNotes.length > 0 && (
-      <section class="front-block front-notes" aria-labelledby="front-field-notes">
-        <header class="page-header">
-          <h2 class="page-title" data-section="field-note" id="front-field-notes">
-            <span>{fieldNote.label}</span>
-          </h2>
-          <p class="page-intro">{fieldNote.description} Also on alexhordal.ca.</p>
-        </header>
-        <PostList posts={fieldNotes} showSection={false} headingLevel={3} />
+      <section class="front-block front-notes" aria-label={fieldNote.label}>
+        <PostList posts={fieldNotes} />
         <p class="list-more">
           <a href={fieldNote.path}>All field notes</a>
         </p>

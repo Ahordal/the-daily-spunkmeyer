@@ -124,11 +124,14 @@ summary:focus-visible,
   /* The emblem's own fills, for the masthead rule. */
   --emblem-red: #e8222b;
   --emblem-navy: #232f78;
-  /* Section tabs follow the masthead stripe, plus a deep teal for Field Notes. Tabs only, never swatches. */
-  --tab-article: var(--emblem-navy);
-  --tab-dispatch: var(--accent);
-  --tab-field-note: #0f5f63;
-  --tab-archive: #4a2c5a; /* plum */
+  /* Tab colours from a topographic sheet, all dark enough for light text (5:1 or better).
+     Used for each tab's box and rule and for section names; never as category swatches. */
+  --tab-latest: #a8261f; /* roads */
+  --tab-article: #1d5a8a; /* water */
+  --tab-dispatch: #7a4a1e; /* contours */
+  --tab-field-note: #36652a; /* woodland */
+  --tab-archive: #6b3a7a; /* revision overprint */
+  --tab-about: #1a1c24; /* detail */
   --space-xs: 0.5rem;
   --space-s: 1rem;
   --space-m: 2rem;
@@ -397,9 +400,34 @@ body {
   text-decoration: none;
 }
 
+/* Each link knows its tab colour; the current page and hover show it. RSS falls back to the accent. */
+.site-nav a[data-section='latest'] {
+  --nav-c: var(--tab-latest);
+}
+
+.site-nav a[data-section='article'] {
+  --nav-c: var(--tab-article);
+}
+
+.site-nav a[data-section='dispatch'] {
+  --nav-c: var(--tab-dispatch);
+}
+
+.site-nav a[data-section='field-note'] {
+  --nav-c: var(--tab-field-note);
+}
+
+.site-nav a[data-section='archive'] {
+  --nav-c: var(--tab-archive);
+}
+
+.site-nav a[data-section='about'] {
+  --nav-c: var(--tab-about);
+}
+
 .site-nav a:hover,
 .site-nav a[aria-current='page'] {
-  color: var(--accent);
+  color: var(--nav-c, var(--accent));
 }
 
 .site-nav-primary {
@@ -526,11 +554,13 @@ body {
   }
 
   /* Fixed width, like Font Awesome's fa-fw, so labels line up whatever the icon's shape. */
+  /* In the link's tab colour, so the open menu doubles as a legend for the section colours. */
   .nav-icon {
     display: block;
     flex: none;
     width: 1.25em;
     height: 1em;
+    color: var(--nav-c, currentColor);
   }
 
   /* Inset lives on the links, so the row lines run edge to edge and each entry reads as a cell. */
@@ -657,8 +687,9 @@ body {
 
 /* 5.4 LATEST (FRONT PAGE)
 
-   One block per section: Articles with a lead story, a Dispatches rail
-   beside it on wide screens, then Field Notes. Empty sections drop out. */
+   The newest from each section under one header: Articles with a lead story,
+   a Dispatches rail beside it on wide screens, then Field Notes. Each post's
+   filed-in line names its section. Empty sections drop out. */
 
 .front-top {
   display: grid;
@@ -698,14 +729,20 @@ body {
   display: grid;
 }
 
-.rail-list li {
+/* Under a black rule, standing in for a section header. */
+.front-rail {
+  padding-top: var(--space-s);
+  border-top: 3px solid var(--text-title);
+}
+
+.rail-list > li {
   display: grid;
   gap: 0.2rem;
   padding-block: 0.8rem;
   border-bottom: 1px solid var(--border-panel);
 }
 
-.rail-list li:first-child {
+.rail-list > li:first-child {
   padding-top: 0;
 }
 
@@ -764,7 +801,7 @@ body {
   margin-bottom: var(--space-m);
 }
 
-.post-header .category-list {
+.post-header .category-row {
   margin-top: var(--space-xs);
 }
 
@@ -794,10 +831,11 @@ body {
 }
 
 /* A section flag, not a headline: the posts listed under it should lead.
-   Light text on a black tab sitting on a heavy rule, like a newspaper section bar. */
+   Light text on a coloured tab sitting on a heavy rule of the same colour, like a newspaper section bar. */
 .page-title {
+  --tab: var(--tab-about); /* Latest, each section and the archive set their own below */
   display: flex;
-  border-bottom: 3px solid var(--text-title);
+  border-bottom: 3px solid var(--tab);
   font-family: var(--font-title);
   font-size: var(--fs-page-title);
   font-weight: 700;
@@ -806,27 +844,30 @@ body {
   text-transform: uppercase;
 }
 
-/* Black by default (About); every section and the archive has its own colour below. */
 .page-title span {
   padding: 0.22em 0.4em 0.12em; /* caps only, so less below than above */
-  background: var(--text-title);
+  background: var(--tab);
   color: var(--bg);
 }
 
-.page-title[data-section='article'] span {
-  background: var(--tab-article);
+.page-title[data-section='latest'] {
+  --tab: var(--tab-latest);
 }
 
-.page-title[data-section='dispatch'] span {
-  background: var(--tab-dispatch);
+.page-title[data-section='article'] {
+  --tab: var(--tab-article);
 }
 
-.page-title[data-section='field-note'] span {
-  background: var(--tab-field-note);
+.page-title[data-section='dispatch'] {
+  --tab: var(--tab-dispatch);
 }
 
-.page-title[data-section='archive'] span {
-  background: var(--tab-archive);
+.page-title[data-section='field-note'] {
+  --tab: var(--tab-field-note);
+}
+
+.page-title[data-section='archive'] {
+  --tab: var(--tab-archive);
 }
 
 /* 6.2 COVER IMAGE */
@@ -943,11 +984,35 @@ body {
    Each item sets --category to its colour; a small square in front reads like a Semiotic sign.
    The label always sits beside it, so colour is never the only cue. */
 
+/* Centred: "Filed in:" and each category are the same height once the items below are flex. */
+.category-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.4rem 0.75rem;
+}
+
 .category-list {
   list-style: none;
   display: flex;
   flex-wrap: wrap;
+  align-items: center;
   gap: 0.4rem 1rem;
+}
+
+/* Flex items, so each takes its label's height instead of the 16px body line, which pushed labels down. */
+.category-list li {
+  display: flex;
+}
+
+/* "Filed in:" leads every category list, set like the labels it introduces. */
+.filed-in {
+  font-family: var(--font-label);
+  font-weight: 600;
+  font-size: var(--fs-xs);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--text-muted);
 }
 
 .category {
@@ -976,10 +1041,22 @@ a.category:hover {
   color: var(--text-title);
 }
 
-/* Field Notes leads its posts' lists: no square, darker, a separator after. */
+/* The section leads every list, in its tab's colour: no square, bolder, a separator after. */
 .category-section {
   font-weight: 700;
   color: var(--text-title);
+}
+
+.category-section[data-section='article'] {
+  color: var(--tab-article);
+}
+
+.category-section[data-section='dispatch'] {
+  color: var(--tab-dispatch);
+}
+
+.category-section[data-section='field-note'] {
+  color: var(--tab-field-note);
 }
 
 .category-section::before {
@@ -1181,13 +1258,26 @@ a.category:hover {
 }
 
 .archive-cats,
+/* In its section's colour, so the archive scans by section as well as by category. */
 .archive-section {
   font-family: var(--font-label);
-  font-weight: 600;
+  font-weight: 700;
   font-size: var(--fs-xs);
   letter-spacing: 0.06em;
   text-transform: uppercase;
   color: var(--text-muted);
+}
+
+.archive-section[data-section='article'] {
+  color: var(--tab-article);
+}
+
+.archive-section[data-section='dispatch'] {
+  color: var(--tab-dispatch);
+}
+
+.archive-section[data-section='field-note'] {
+  color: var(--tab-field-note);
 }
 
 /* Phones: day, squares and title only; the filters still name what's shown. */

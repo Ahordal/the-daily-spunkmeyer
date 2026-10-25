@@ -29,7 +29,8 @@ export default config({
       schema: {
         section: fields.select({
           label: 'Section',
-          description: 'Field Notes also appear on alexhordal.ca/field_notes.',
+          description:
+            'Field Note: map, design and code work, also published on alexhordal.ca. Article: longer personal pieces. Dispatch: quick, light finds.',
           options: SECTIONS.map((s) => ({ label: s.singular, value: s.id })),
           defaultValue: 'article',
         }),
