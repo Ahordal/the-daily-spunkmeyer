@@ -5,7 +5,7 @@ import { formatDate, formatSerial, getSerials, linkHost, type Post } from '../ut
 
 interface Props {
   posts: Post[];
-  /** Give the first post the front page's lead treatment: full-width cover, bigger headline. */
+  /** Give the first post Latest's lead treatment: full-width cover, bigger headline. */
   lead?: boolean;
 }
 
@@ -16,7 +16,7 @@ const serials = await getSerials();
 <ol class="post-list">
   {
     posts.map((post, i) => {
-      const { title, summary, cover, publishedDate, section, categories, link } = post.data;
+      const { title, summary, cover, publishedDate, categories, link } = post.data;
       const href = `/posts/${post.id}/`;
       const isLead = lead && i === 0;
       return (
@@ -46,7 +46,7 @@ const serials = await getSerials();
                 </a>
               </p>
             )}
-            <CategoryList ids={categories} section={section} />
+            <CategoryList ids={categories} />
           </div>
         </li>
       );

@@ -9,19 +9,10 @@ import '@fontsource/barlow-condensed/900.css';
 import '../styles/global.css';
 import { getImage } from 'astro:assets';
 import type { ImageMetadata } from 'astro';
-import { getEdition, formatDate } from '../utils/posts';
-import { SECTIONS, type SectionId } from '../utils/taxonomy';
+import { getEdition, getTopicGroups, formatDate } from '../utils/posts';
+import { topicPath } from '../utils/taxonomy';
 // Font Awesome Free icons (CC BY 4.0, fontawesome.com), drawn as inline SVG at build time.
-import {
-  faBolt,
-  faBoxArchive,
-  faCircleUser,
-  faMapLocationDot,
-  faNewspaper,
-  faPaperPlane,
-  faRss,
-  type IconDefinition,
-} from '@fortawesome/free-solid-svg-icons';
+import { faBolt, faBoxArchive, faCircleUser, faRss, faTags, type IconDefinition } from '@fortawesome/free-solid-svg-icons';
 
 interface Props {
   title?: string;
@@ -56,21 +47,17 @@ const edition = await getEdition();
 const path = Astro.url.pathname;
 // "/" would prefix-match every page, so Latest only lights up on the home page itself.
 const isCurrent = (href: string) => (href === '/' ? path === '/' : path.startsWith(href));
-const sectionIcons: Record<SectionId, IconDefinition> = {
-  article: faNewspaper,
-  dispatch: faPaperPlane,
-  'field-note': faMapLocationDot,
-};
 // `section` picks the link's tab colour for its icon and current-page state; RSS has none.
 const primaryLinks = [
   { href: '/', label: 'Latest', icon: faBolt, section: 'latest' },
-  ...SECTIONS.map((s) => ({ href: s.path, label: s.label, icon: sectionIcons[s.id], section: s.id })),
+  { href: '/topics/', label: 'Topics', icon: faTags, section: 'topics' },
+  { href: '/archive/', label: 'Archive', icon: faBoxArchive, section: 'archive' },
 ];
 const secondaryLinks = [
-  { href: '/archive/', label: 'Archive', icon: faBoxArchive, section: 'archive' },
   { href: '/about/', label: 'About', icon: faCircleUser, section: 'about' },
   { href: '/rss.xml', label: 'RSS', icon: faRss },
 ];
+const topicGroups = await getTopicGroups();
 const iconViewBox = ({ icon: [w, h] }: IconDefinition) => `0 0 ${w} ${h}`;
 const iconPath = ({ icon }: IconDefinition) => [icon[4]].flat().join(' ');
 const year = new Date().getFullYear();
@@ -146,16 +133,67 @@ const year = new Date().getFullYear();
         <nav class="site-nav" id="site-nav" aria-label="Site">
           <ul class="site-nav-primary">
             {
-              primaryLinks.map((l) => (
-                <li>
-                  <a href={l.href} data-section={l.section} aria-current={isCurrent(l.href) ? 'page' : undefined}>
-                    <svg class="nav-icon" viewBox={iconViewBox(l.icon)} aria-hidden="true">
-                      <path d={iconPath(l.icon)} fill="currentColor" />
-                    </svg>
-                    {l.label}
-                  </a>
-                </li>
-              ))
+              primaryLinks.map((l) =>
+                l.section === 'topics' ? (
+                  <li class="nav-topics">
+                    {/* The script swaps the link for the button, so without JS Topics is just a link. */}
+                    <a href={l.href} data-section={l.section} aria-current={isCurrent(l.href) ? 'page' : undefined}>
+                      <svg class="nav-icon" viewBox={iconViewBox(l.icon)} aria-hidden="true">
+                        <path d={iconPath(l.icon)} fill="currentColor" />
+                      </svg>
+                      {l.label}
+                    </a>
+                    <button
+                      type="button"
+                      class="nav-topics-toggle"
+                      data-section={l.section}
+                      aria-current={isCurrent(l.href) ? 'page' : undefined}
+                      aria-expanded="false"
+                      aria-controls="topics-panel"
+                      hidden
+                    >
+                      <svg class="nav-icon" viewBox={iconViewBox(l.icon)} aria-hidden="true">
+                        <path d={iconPath(l.icon)} fill="currentColor" />
+                      </svg>
+                      {l.label}
+                      <svg class="nav-chevron" viewBox="0 0 12 12" width="10" height="10" aria-hidden="true">
+                        <path d="M2 4.5l4 4 4-4" fill="none" stroke="currentColor" stroke-width="1.75" />
+                      </svg>
+                    </button>
+                    <div class="topics-panel" id="topics-panel" hidden>
+                      <a class="topics-all" href={l.href}>All topics</a>
+                      {topicGroups.map((group) => (
+                        <div class="topics-group">
+                          <p class="topics-group-label">{group.label}</p>
+                          <ul>
+                            {group.topics.map((c) => (
+                              <li>
+                                <a
+                                  href={topicPath(c.id)}
+                                  style={`--category: ${c.color}`}
+                                  aria-current={path === topicPath(c.id) ? 'page' : undefined}
+                                >
+                                  <span class="swatch" style={`--category: ${c.color}`} aria-hidden="true" />
+                                  {c.label}
+                                </a>
+                              </li>
+                            ))}
+                          </ul>
+                        </div>
+                      ))}
+                    </div>
+                  </li>
+                ) : (
+                  <li>
+                    <a href={l.href} data-section={l.section} aria-current={isCurrent(l.href) ? 'page' : undefined}>
+                      <svg class="nav-icon" viewBox={iconViewBox(l.icon)} aria-hidden="true">
+                        <path d={iconPath(l.icon)} fill="currentColor" />
+                      </svg>
+                      {l.label}
+                    </a>
+                  </li>
+                ),
+              )
             }
           </ul>
           <ul class="site-nav-secondary">
@@ -184,15 +222,33 @@ const year = new Date().getFullYear();
           header.dataset.menu = open ? 'open' : 'closed';
           toggle.setAttribute('aria-expanded', String(open));
         };
+        const topicsLink = header.querySelector('.nav-topics > a');
+        const topicsToggle = header.querySelector('.nav-topics-toggle');
+        const topicsPanel = header.querySelector('#topics-panel');
+        const setTopicsOpen = (open) => {
+          topicsPanel.hidden = !open;
+          topicsToggle.setAttribute('aria-expanded', String(open));
+        };
         setOpen(false);
         toggle.hidden = false;
-        toggle.addEventListener('click', () => setOpen(header.dataset.menu === 'closed'));
-        // The menu floats over the page, so a tap anywhere else should dismiss it.
+        topicsLink.hidden = true;
+        topicsToggle.hidden = false;
+        toggle.addEventListener('click', () => {
+          setOpen(header.dataset.menu === 'closed');
+          setTopicsOpen(false);
+        });
+        topicsToggle.addEventListener('click', () => setTopicsOpen(topicsPanel.hidden));
+        // Both float over the page, so a tap anywhere else should dismiss them.
         document.addEventListener('click', (e) => {
+          if (!topicsPanel.hidden && !e.target.closest('.nav-topics')) setTopicsOpen(false);
           if (header.dataset.menu === 'open' && !e.target.closest('#site-nav, .nav-toggle')) setOpen(false);
         });
         header.addEventListener('keydown', (e) => {
-          if (e.key === 'Escape' && header.dataset.menu === 'open') {
+          if (e.key !== 'Escape') return;
+          if (!topicsPanel.hidden) {
+            setTopicsOpen(false);
+            topicsToggle.focus();
+          } else if (header.dataset.menu === 'open') {
             setOpen(false);
             toggle.focus();
           }

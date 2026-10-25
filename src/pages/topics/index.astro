@@ -1,0 +1,38 @@
+---
+import Base from '../../layouts/Base.astro';
+import { getTopicGroups } from '../../utils/posts';
+import { topicPath } from '../../utils/taxonomy';
+
+// Empty categories stay hidden, so the page grows with the site instead of listing dead ends.
+const groups = await getTopicGroups();
+const countLabel = (n: number) => `${n} ${n === 1 ? 'post' : 'posts'}`;
+---
+
+<Base title="Topics" description="Everything on The Daily Spunkmeyer, by what it's about.">
+  <header class="page-header">
+    <h1 class="page-title" data-section="topics"><span>Topics</span></h1>
+    <p class="page-intro">Every post, by what it's about.</p>
+  </header>
+  {
+    groups.length > 0 ? (
+      groups.map((group) => (
+        <section class="topic-group">
+          <h2 class="topic-group-title">{group.label}</h2>
+          <ul class="topic-list">
+            {group.topics.map((c) => (
+              <li>
+                <a href={topicPath(c.id)}>
+                  <span class="swatch" style={`--category: ${c.color}`} aria-hidden="true" />
+                  <span class="topic-name">{c.label}</span>
+                  <span class="topic-count">{countLabel(c.count)}</span>
+                </a>
+              </li>
+            ))}
+          </ul>
+        </section>
+      ))
+    ) : (
+      <p class="empty-state">Nothing here yet.</p>
+    )
+  }
+</Base>

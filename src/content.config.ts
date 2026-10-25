@@ -1,7 +1,7 @@
 import { defineCollection } from 'astro:content';
 import { glob } from 'astro/loaders';
 import { z } from 'astro/zod';
-import { SECTION_IDS, CATEGORY_IDS } from './utils/taxonomy';
+import { CATEGORY_IDS } from './utils/taxonomy';
 
 // Mirrors the posts schema in keystatic.config.ts; keep the two in step.
 const posts = defineCollection({
@@ -10,7 +10,7 @@ const posts = defineCollection({
     z
       .object({
         title: z.string(),
-        section: z.enum(SECTION_IDS).default('article'),
+        portfolio: z.boolean().default(false),
         publishedDate: z.coerce.date(),
         updatedDate: z.coerce.date().optional().nullable(),
         summary: z.string().optional().nullable(),

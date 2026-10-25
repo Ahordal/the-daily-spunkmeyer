@@ -1,0 +1,36 @@
+---
+import Base from '../../layouts/Base.astro';
+import PostList from '../../components/PostList.astro';
+import { getPostsInCategory } from '../../utils/posts';
+import { CATEGORIES, CATEGORY_GROUPS, tabTextColor, type Category } from '../../utils/taxonomy';
+
+// Every category gets a page, even empty ones, so links shared before its first post still work.
+export function getStaticPaths() {
+  return CATEGORIES.map((category) => ({ params: { category: category.id }, props: { category } }));
+}
+
+interface Props {
+  category: Category;
+}
+
+const { category } = Astro.props;
+const group = CATEGORY_GROUPS.find((g) => g.id === category.group)!;
+const posts = await getPostsInCategory(category.id);
+---
+
+<Base title={category.label} description={`Posts about ${category.label} on The Daily Spunkmeyer.`}>
+  <header class="page-header">
+    <!-- Tab and rule in the category's own colour. -->
+    <h1 class="page-title" style={`--tab: ${category.color}; --tab-text: ${tabTextColor(category.color)}`}>
+      <span>{category.label}</span>
+    </h1>
+    <p class="page-intro topic-intro"><a href="/topics/">Topics</a> › {group.label}</p>
+  </header>
+  {
+    posts.length > 0 ? (
+      <PostList posts={posts} />
+    ) : (
+      <p class="empty-state">Nothing here yet.</p>
+    )
+  }
+</Base>

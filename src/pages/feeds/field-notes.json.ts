@@ -2,15 +2,15 @@ import type { APIContext } from 'astro';
 import { getImage } from 'astro:assets';
 import { render } from 'astro:content';
 import { experimental_AstroContainer as AstroContainer } from 'astro/container';
-import { getPostsInSection } from '../../utils/posts';
-import { portfolioUrl } from '../../utils/portfolio';
+import { getPublishedPosts } from '../../utils/posts';
+import { isOnPortfolio, portfolioUrl } from '../../utils/portfolio';
 import { getCategories } from '../../utils/taxonomy';
 
 // Read by alexhordal.ca at build time to publish Field Notes as its own /field_notes pages.
 // Changing this shape means updating the portfolio's src/utils/blog.ts too.
 export async function GET(context: APIContext) {
   const site = context.site!;
-  const posts = await getPostsInSection('field-note');
+  const posts = (await getPublishedPosts()).filter(isOnPortfolio);
   const container = await AstroContainer.create();
 
   // The portfolio is another origin, so root-relative image paths must become absolute.

@@ -1,6 +1,6 @@
 import { config, fields, collection } from '@keystatic/core';
 import { wrapper } from '@keystatic/core/content-components';
-import { SECTIONS, CATEGORIES } from './src/utils/taxonomy';
+import { CATEGORIES } from './src/utils/taxonomy';
 
 // Images live under src/ so Astro can resize and compress them at build time.
 // publicPath is relative to the post file in src/content/posts/.
@@ -25,15 +25,8 @@ export default config({
       slugField: 'title',
       path: 'src/content/posts/*',
       format: { contentField: 'content' },
-      columns: ['title', 'section', 'publishedDate'],
+      columns: ['title', 'publishedDate'],
       schema: {
-        section: fields.select({
-          label: 'Section',
-          description:
-            'Field Note: map, design and code work, also published on alexhordal.ca. Article: longer personal pieces. Dispatch: quick, light finds.',
-          options: SECTIONS.map((s) => ({ label: s.singular, value: s.id })),
-          defaultValue: 'article',
-        }),
         title: fields.slug({
           name: { label: 'Title' },
           slug: {
@@ -58,7 +51,7 @@ export default config({
         }),
         link: fields.url({
           label: 'Link',
-          description: 'Optional. For a dispatch about something you found: where it lives.',
+          description: 'Optional. For a post about something you found: where it lives.',
         }),
         cover: fields.image({
           label: 'Cover image',
@@ -71,8 +64,13 @@ export default config({
         }),
         categories: fields.multiselect({
           label: 'Categories',
-          description: 'Pick any that fit. Used for the coloured markers and the archive filter.',
+          description: 'Pick any that fit. Used for the coloured markers, Topics pages and the archive filter.',
           options: CATEGORIES.map((c) => ({ label: c.label, value: c.id })),
+        }),
+        portfolio: fields.checkbox({
+          label: 'Also on portfolio',
+          description: 'Publishes it as a Field Note on alexhordal.ca too, which becomes the canonical copy.',
+          defaultValue: false,
         }),
         draft: fields.checkbox({
           label: 'Draft',

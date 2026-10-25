@@ -1,7 +1,7 @@
 ---
 import Base from '../../layouts/Base.astro';
 import { getPublishedPosts, type Post } from '../../utils/posts';
-import { SECTIONS, CATEGORIES, getSection, getCategories } from '../../utils/taxonomy';
+import { CATEGORIES, getCategories } from '../../utils/taxonomy';
 
 const posts = await getPublishedPosts();
 
@@ -27,17 +27,7 @@ const countLabel = (n: number) => `${n} ${n === 1 ? 'post' : 'posts'}`;
 
   <!-- Shown by the script below; without it the full list still reads fine. -->
   <div class="archive-filters" id="archive-filters" hidden>
-    <div class="filter-row" role="group" aria-label="Filter by section">
-      <button type="button" class="filter" data-filter="section" data-value="" aria-pressed="true">All sections</button>
-      {
-        SECTIONS.map((s) => (
-          <button type="button" class="filter" data-filter="section" data-value={s.id} aria-pressed="false">
-            {s.label}
-          </button>
-        ))
-      }
-    </div>
-    <!-- A native select: eleven options would be three rows of buttons, and phones get their own picker. -->
+    <!-- A native select: fourteen options would be three rows of buttons, and phones get their own picker. -->
     <div class="filter-select">
       <label for="category-filter">Category</label>
       <span class="swatch" id="category-swatch" aria-hidden="true" hidden></span>
@@ -67,10 +57,10 @@ const countLabel = (n: number) => `${n} ${n === 1 ? 'post' : 'posts'}`;
             </h3>
             <ol class="archive-list">
               {monthPosts.map((post) => {
-                const { title, section, categories, publishedDate } = post.data;
+                const { title, categories, publishedDate, portfolio } = post.data;
                 const cats = getCategories(categories);
                 return (
-                  <li class="archive-entry" data-section={section} data-categories={categories.join(' ')}>
+                  <li class="archive-entry" data-categories={categories.join(' ')}>
                     <a href={`/posts/${post.id}/`}>
                       <time class="archive-day" datetime={publishedDate.toISOString()}>
                         {String(publishedDate.getUTCDate()).padStart(2, '0')}
@@ -81,8 +71,10 @@ const countLabel = (n: number) => `${n} ${n === 1 ? 'post' : 'posts'}`;
                         ))}
                       </span>
                       <span class="archive-title">{title}</span>
-                      <span class="archive-cats">{cats.map((c) => c.label).join(' · ')}</span>
-                      <span class="archive-section" data-section={section}>{getSection(section).singular}</span>
+                      <span class="archive-cats">
+                        {cats.map((c) => c.label).join(' · ')}
+                        {portfolio && <span class="archive-portfolio">Portfolio</span>}
+                      </span>
                     </a>
                   </li>
                 );
@@ -100,7 +92,6 @@ const countLabel = (n: number) => `${n} ${n === 1 ? 'post' : 'posts'}`;
 <script>
   // Filters hide entries in place; the URL keeps them, so a filtered view can be shared.
   const filters = document.getElementById('archive-filters')!;
-  const buttons = [...filters.querySelectorAll<HTMLButtonElement>('button[data-filter]')];
   const select = document.getElementById('category-filter') as HTMLSelectElement;
   const swatch = document.getElementById('category-swatch')!;
   const entries = [...document.querySelectorAll<HTMLElement>('.archive-entry')];
@@ -109,15 +100,13 @@ const countLabel = (n: number) => `${n} ${n === 1 ? 'post' : 'posts'}`;
   const plural = (n: number) => `${n} ${n === 1 ? 'post' : 'posts'}`;
 
   const params = new URLSearchParams(location.search);
-  const state = { section: params.get('section') ?? '', category: params.get('category') ?? '' };
+  const state = { category: params.get('category') ?? '' };
 
   function apply() {
     let shown = 0;
     for (const entry of entries) {
       const cats = (entry.dataset.categories ?? '').split(' ');
-      const match =
-        (!state.section || entry.dataset.section === state.section) &&
-        (!state.category || cats.includes(state.category));
+      const match = !state.category || cats.includes(state.category);
       entry.hidden = !match;
       if (match) shown++;
     }
@@ -130,10 +119,6 @@ const countLabel = (n: number) => `${n} ${n === 1 ? 'post' : 'posts'}`;
     }
     for (const year of document.querySelectorAll<HTMLElement>('.archive-year')) {
       year.hidden = !year.querySelector('.archive-month:not([hidden])');
-    }
-
-    for (const button of buttons) {
-      button.setAttribute('aria-pressed', String(state.section === (button.dataset.value ?? '')));
     }
 
     // An unknown ?category= falls back to All rather than an empty list.
@@ -150,17 +135,9 @@ const countLabel = (n: number) => `${n} ${n === 1 ? 'post' : 'posts'}`;
     empty.hidden = shown > 0;
 
     const next = new URLSearchParams();
-    if (state.section) next.set('section', state.section);
     if (state.category) next.set('category', state.category);
     const query = next.toString();
     history.replaceState(null, '', query ? `?${query}` : location.pathname);
-  }
-
-  for (const button of buttons) {
-    button.addEventListener('click', () => {
-      state.section = button.dataset.value ?? '';
-      apply();
-    });
   }
 
   select.addEventListener('change', () => {

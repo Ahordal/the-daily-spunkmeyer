@@ -1,43 +1,27 @@
 ---
-import { getCategories, getSection, type CategoryId, type SectionId } from '../utils/taxonomy';
+import { getCategories, topicPath, type CategoryId } from '../utils/taxonomy';
 
 interface Props {
   ids: readonly CategoryId[];
-  /** Leads the list, ahead of the categories. */
-  section?: SectionId;
-  /** Link each category to the archive, filtered to it. */
+  /** Link each category to its Topics page. */
   linked?: boolean;
 }
 
-const { ids, section, linked = true } = Astro.props;
+const { ids, linked = true } = Astro.props;
 const categories = getCategories(ids);
-const lead = section ? getSection(section) : null;
 ---
 
 {
-  (lead || categories.length > 0) && (
+  categories.length > 0 && (
     <div class="category-row">
       <span class="filed-in" aria-hidden="true">
         Filed in:
       </span>
       <ul class="category-list" aria-label="Filed in">
-        {lead && (
-          <li>
-            {linked ? (
-              <a class="category category-section" data-section={lead.id} href={lead.path}>
-                {lead.label}
-              </a>
-            ) : (
-              <span class="category category-section" data-section={lead.id}>
-                {lead.label}
-              </span>
-            )}
-          </li>
-        )}
         {categories.map((c) => (
           <li style={`--category: ${c.color}`}>
             {linked ? (
-              <a class="category" href={`/archive/?category=${c.id}`}>
+              <a class="category" href={topicPath(c.id)}>
                 {c.label}
               </a>
             ) : (

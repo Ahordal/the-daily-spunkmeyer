@@ -110,10 +110,10 @@ summary:focus-visible,
   --brand-red: #e8222b;
   --brand-navy: #232f78;
 
-  /* Matches the logo's light ground, so its seams read as cut-outs. */
-  --bg: #e7e8f0;
-  --bg-panel: #fff;
-  --bg-panel-alt: #e6e7ee; /* TBD: too close to --bg now */
+  /* Matches the logo's white ground, so its seams read as cut-outs. */
+  --bg: #fff;
+  /* Code blocks and the archive picker: a faint cool grey, so they still read as panels on white. */
+  --bg-panel: #f2f3f7;
   --text-body: #15182b;
 
   --text-title: #0b0e1c;
@@ -125,11 +125,10 @@ summary:focus-visible,
   --emblem-red: #e8222b;
   --emblem-navy: #232f78;
   /* Tab colours from a topographic sheet, all dark enough for light text (5:1 or better).
-     Used for each tab's box and rule and for section names; never as category swatches. */
+     Used for each page tab and its rule, and nav links; never as category swatches. */
   --tab-latest: #a8261f; /* roads */
-  --tab-article: #1d5a8a; /* water */
-  --tab-dispatch: #7a4a1e; /* contours */
-  --tab-field-note: #36652a; /* woodland */
+  --tab-topics: #1d5a8a; /* water */
+  --tab-portfolio: #36652a; /* woodland: marks posts also on alexhordal.ca */
   --tab-archive: #6b3a7a; /* revision overprint */
   --tab-about: #1a1c24; /* detail */
   --space-xs: 0.5rem;
@@ -138,6 +137,8 @@ summary:focus-visible,
   --space-l: 4rem;
   --container: 60rem;
   --measure: 68ch;
+  /* Content's inset from the header edge, which spans the screen on phones. */
+  --gutter: 0.5rem;
 
   --font-body: 'Barlow Condensed', 'Arial Narrow', system-ui, -apple-system, 'Segoe UI', sans-serif;
   --font-display: var(--font-body);
@@ -154,16 +155,16 @@ summary:focus-visible,
   --fs-2xl: 2rem;      /* 32px - list titles, h2 */
   /* Site title: the insignia brief's heading (7vw, max 72px). Logo + title run
      ~10.2em wide, so on phones it shrinks further to stay on one line. */
-  --fs-display: clamp(1rem, min(7vw, calc((100vw - 2rem) / 10.2)), 4.5rem);
+  --fs-display: clamp(1rem, min(7vw, calc((100vw - 2 * var(--gutter)) / 10.2)), 4.5rem);
 
   /* Header emblem, sized on its own so title tweaks never move it: up to 108px,
      shrinking on phones in step with the one-line title. */
-  --size-emblem: clamp(1rem, calc((100vw - 2rem) / 10.2), 6.75rem);
+  --size-emblem: clamp(1rem, calc((100vw - 2 * var(--gutter)) / 10.2), 6.75rem);
   /* Headlines shrink on phones too, so they don't outsize the masthead; floors keep them above body text. */
   --fs-3xl: clamp(1.75rem, 6vw, 3.25rem); /* post title: 28px phones, 52px desktop */
   --fs-list-title: clamp(1.375rem, 4vw, 2rem); /* 22px phones, 32px desktop */
-  /* Page title keeps desktop's 28:108 ratio to the emblem; the 18px floor keeps it above body text and labels. */
-  --fs-page-title: max(1.125rem, calc(var(--size-emblem) * 28 / 108));
+  /* Page title keeps desktop's 22:108 ratio to the emblem; the 16px floor keeps it above labels. */
+  --fs-page-title: max(1rem, calc(var(--size-emblem) * 22 / 108));
 }
 
 /* ///////////////////////////////////////////// 3. PAGE LAYOUT ////////////////////////////////////////////// */
@@ -174,7 +175,14 @@ summary:focus-visible,
   width: 100%;
   max-width: var(--container);
   margin-inline: auto;
-  padding-inline: max(var(--space-s), env(safe-area-inset-left, 0px)) max(var(--space-s), env(safe-area-inset-right, 0px));
+  padding-inline: max(var(--gutter), env(safe-area-inset-left, 0px)) max(var(--gutter), env(safe-area-inset-right, 0px));
+}
+
+/* Desktop's header edge is the nav's own border, so it reaches half the gutter past the content. */
+@media (min-width: 721px) {
+  :root {
+    --gutter: 1rem;
+  }
 }
 
 /* 3.2 MAIN */
@@ -374,16 +382,26 @@ body {
   justify-content: space-between;
   align-items: center;
   gap: var(--space-xs) var(--space-m);
-  padding-block: 0.5rem;
+  margin-inline: -0.5rem;
+  padding: 0.5rem;
+  position: relative;
   /* Desktop's header edge, content width; phones move it to the full-width header. */
   border-bottom: 1px solid var(--border-panel);
-  box-shadow: 0 0.25rem 0.6rem -0.25rem rgb(11 14 28 / 0.25);
-  /* Shadow below only, so the edge ends square with the content. */
-  clip-path: inset(0 0 -1rem 0);
   font-family: var(--font-label);
   font-weight: 600;
   letter-spacing: 0.08em;
   text-transform: uppercase;
+}
+
+/* The edge's shadow lives on its own layer: clipping it square on the nav itself would clip the Topics panel too. */
+.site-nav::after {
+  content: '';
+  position: absolute;
+  inset: 0 0 -1px;
+  box-shadow: 0 0.25rem 0.6rem -0.25rem rgb(11 14 28 / 0.25);
+  /* Shadow below only, so the edge ends square with the content. */
+  clip-path: inset(0 0 -1rem 0);
+  pointer-events: none;
 }
 
 .site-nav ul {
@@ -391,6 +409,11 @@ body {
   display: flex;
   flex-wrap: wrap;
   column-gap: 1.5rem;
+}
+
+/* Beats each element's own display, so the script's link/button swap takes effect. */
+.site-nav [hidden] {
+  display: none;
 }
 
 .site-nav a {
@@ -405,18 +428,6 @@ body {
   --nav-c: var(--tab-latest);
 }
 
-.site-nav a[data-section='article'] {
-  --nav-c: var(--tab-article);
-}
-
-.site-nav a[data-section='dispatch'] {
-  --nav-c: var(--tab-dispatch);
-}
-
-.site-nav a[data-section='field-note'] {
-  --nav-c: var(--tab-field-note);
-}
-
 .site-nav a[data-section='archive'] {
   --nav-c: var(--tab-archive);
 }
@@ -428,6 +439,88 @@ body {
 .site-nav a:hover,
 .site-nav a[aria-current='page'] {
   color: var(--nav-c, var(--accent));
+}
+
+/* 4.4 TOPICS PANEL
+
+   Topics opens the category list: a panel hanging from the nav edge on
+   desktop, rows folding open inside the menu on phones. */
+
+.nav-topics-toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.4rem 0;
+  border: 0;
+  background: none;
+  color: var(--text-title);
+  font: inherit;
+  letter-spacing: inherit;
+  text-transform: inherit;
+  cursor: pointer;
+}
+
+.nav-chevron {
+  transition: transform 0.15s ease;
+}
+
+.nav-topics-toggle[aria-expanded='true'] .nav-chevron {
+  transform: rotate(180deg);
+}
+
+/* Hangs from the nav edge, covering its border and shadow where they meet. Measured from .site-nav, so it
+   sits flush whatever the row height; left stays auto to keep the Topics item's position, then shifts to line up the text. */
+.topics-panel {
+  position: absolute;
+  top: 100%;
+  margin-left: -1rem;
+  z-index: 20;
+  width: 16rem;
+  padding-block: 0.25rem 0.5rem;
+  border: 1px solid var(--border-panel);
+  border-top: 0;
+  background: var(--bg);
+  box-shadow: 0 0.5rem 1rem -0.25rem rgb(11 14 28 / 0.25);
+  /* -2px leaves room for the patch below. */
+  clip-path: inset(-2px -2rem -2rem -2rem);
+}
+
+/* Screens snap the nav's border to whole pixels, so the panel's edge alone can leave a sliver showing. */
+.topics-panel::before {
+  content: '';
+  position: absolute;
+  top: -2px;
+  left: 0;
+  right: 0;
+  height: 3px;
+  background: var(--bg);
+}
+
+.site-nav .topics-panel ul {
+  display: block;
+}
+
+.site-nav .topics-panel a {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  padding: 0.45rem 1rem;
+}
+
+/* Each category lights up in its own colour. */
+.site-nav .topics-panel a:hover,
+.site-nav .topics-panel a[aria-current='page'] {
+  color: var(--category, currentColor);
+}
+
+.site-nav .topics-all {
+  border-bottom: 1px solid var(--text-title);
+}
+
+.topics-group-label {
+  padding: 0.6rem 1rem 0.15rem;
+  font-size: var(--fs-xs);
+  color: var(--text-muted);
 }
 
 .site-nav-primary {
@@ -451,7 +544,7 @@ body {
   display: none;
 }
 
-/* 4.4 PHONE MENU */
+/* 4.5 PHONE MENU */
 
 @media (max-width: 720px) {
   /* Full width here, so the menu has an edge to hang from. */
@@ -512,6 +605,8 @@ body {
   /* No row gap, so the rule sits evenly between the two groups. */
   .site-nav {
     row-gap: 0;
+    margin-inline: 0;
+    padding-inline: 0;
     border-bottom: 0;
     box-shadow: none;
   }
@@ -524,7 +619,7 @@ body {
     /* Flush with the screen edge; the extra gutter of width keeps the links where they were. */
     right: 0;
     z-index: 10;
-    width: calc(min(16rem, 100% - 2 * var(--space-s)) + var(--space-s));
+    width: calc(min(16rem, 100% - 2 * var(--gutter)) + var(--gutter));
     padding: 0;
     border: 1px solid var(--border-panel);
     border-block-start: 0;
@@ -554,7 +649,7 @@ body {
   }
 
   /* Fixed width, like Font Awesome's fa-fw, so labels line up whatever the icon's shape. */
-  /* In the link's tab colour, so the open menu doubles as a legend for the section colours. */
+  /* In the link's tab colour, so the open menu doubles as a legend for the page colours. */
   .nav-icon {
     display: block;
     flex: none;
@@ -579,6 +674,51 @@ body {
 
   .site-nav-secondary {
     font-size: var(--fs-sm);
+  }
+
+  .site-nav::after {
+    display: none;
+  }
+
+  /* Topics folds open in place: a full-width row, then its categories indented under the label. */
+  .nav-topics-toggle {
+    width: 100%;
+    gap: 0.75rem;
+    padding: 0.6rem 1rem;
+    text-align: left;
+  }
+
+  .nav-chevron {
+    margin-left: auto;
+  }
+
+  .topics-panel {
+    position: static;
+    width: auto;
+    margin-left: 0;
+    padding-block: 0 0.4rem;
+    border: 0;
+    border-top: 1px solid var(--border-panel);
+    box-shadow: none;
+    clip-path: none;
+  }
+
+  .topics-panel::before {
+    display: none;
+  }
+
+  /* Indented to line up with the labels beside the menu icons. */
+  .site-header[data-menu] .site-nav .topics-panel a,
+  .topics-group-label {
+    padding-inline: 2.85rem 1rem;
+  }
+
+  .site-nav .topics-panel li {
+    border-bottom: 0;
+  }
+
+  .site-nav .topics-all {
+    border-bottom: 0;
   }
 }
 
@@ -685,31 +825,9 @@ body {
   color: var(--accent);
 }
 
-/* 5.4 LATEST (FRONT PAGE)
+/* 5.4 LATEST
 
-   The newest from each section under one header: Articles with a lead story,
-   a Dispatches rail beside it on wide screens, then Field Notes. Each post's
-   filed-in line names its section. Empty sections drop out. */
-
-.front-top {
-  display: grid;
-  gap: var(--space-l);
-}
-
-@media (min-width: 52rem) {
-  .front-top.has-rail {
-    grid-template-columns: minmax(0, 2fr) minmax(0, 1fr);
-    gap: 2.5rem;
-  }
-}
-
-.front-block {
-  min-width: 0;
-}
-
-.front-notes {
-  margin-top: var(--space-l);
-}
+   One stream, newest first; the newest post leads. */
 
 /* Lead story: cover full width above the text, headline at the post page's size. */
 .post-item-lead,
@@ -723,76 +841,9 @@ body {
   line-height: 1.05;
 }
 
-/* Dispatches rail: date, source and headline only. */
-.rail-list {
-  list-style: none;
-  display: grid;
-}
-
-/* Under a black rule, standing in for a section header. */
-.front-rail {
-  padding-top: var(--space-s);
-  border-top: 3px solid var(--text-title);
-}
-
-.rail-list > li {
-  display: grid;
-  gap: 0.2rem;
-  padding-block: 0.8rem;
-  border-bottom: 1px solid var(--border-panel);
-}
-
-.rail-list > li:first-child {
-  padding-top: 0;
-}
-
-.rail-source {
-  color: var(--accent);
-}
-
-.rail-title {
-  font-family: var(--font-display);
-  font-size: var(--fs-lg);
-  font-weight: 700;
-  line-height: 1.2;
-}
-
-.rail-title a {
-  color: var(--text-title);
-  text-decoration: none;
-}
-
-.rail-title a:hover {
-  color: var(--accent);
-}
-
-/* Field Notes: two side by side from tablet width, each under a teal line. */
-@media (min-width: 40rem) {
-  .front-notes .post-list {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-    gap: var(--space-m);
-  }
-}
-
-.front-notes .post-item,
-.front-notes .post-item:first-child {
-  padding-block: 0.9rem 0;
-  border-bottom: 0;
-  border-top: 3px solid var(--tab-field-note);
-}
-
-/* Covers would crowd the half-width cards. */
-.front-notes .post-item-cover {
-  display: none;
-}
-
-.front-notes .post-item.has-cover {
-  grid-template-columns: minmax(0, 1fr);
-}
-
 /* ///////////////////////////////////////////// 6. ARTICLE ////////////////////////////////////////////// */
 
-/* 6.1 ARTICLE & PAGE HEADERS (page headers top the section, archive and about pages) */
+/* 6.1 ARTICLE & PAGE HEADERS (page headers top Latest, Topics, the archive and about) */
 
 .post-header,
 .page-header {
@@ -803,6 +854,19 @@ body {
 
 .post-header .category-row {
   margin-top: var(--space-xs);
+}
+
+.post-portfolio {
+  font-family: var(--font-label);
+  font-weight: 600;
+  font-size: var(--fs-xs);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+}
+
+.post-portfolio a {
+  color: var(--tab-portfolio);
 }
 
 /* Set like the masthead's volume line: a label, not body text. */
@@ -833,7 +897,7 @@ body {
 /* A section flag, not a headline: the posts listed under it should lead.
    Light text on a coloured tab sitting on a heavy rule of the same colour, like a newspaper section bar. */
 .page-title {
-  --tab: var(--tab-about); /* Latest, each section and the archive set their own below */
+  --tab: var(--tab-about); /* Latest, Topics and the archive set their own below */
   display: flex;
   border-bottom: 3px solid var(--tab);
   font-family: var(--font-title);
@@ -844,26 +908,19 @@ body {
   text-transform: uppercase;
 }
 
-.page-title span {
+.page-title > span {
   padding: 0.22em 0.4em 0.12em; /* caps only, so less below than above */
   background: var(--tab);
-  color: var(--bg);
+  color: var(--tab-text, var(--bg));
 }
 
+/* The emblem's own navy, rather than the nav's --tab-latest. */
 .page-title[data-section='latest'] {
-  --tab: var(--tab-latest);
+  --tab: var(--emblem-navy);
 }
 
-.page-title[data-section='article'] {
-  --tab: var(--tab-article);
-}
-
-.page-title[data-section='dispatch'] {
-  --tab: var(--tab-dispatch);
-}
-
-.page-title[data-section='field-note'] {
-  --tab: var(--tab-field-note);
+.page-title[data-section='topics'] {
+  --tab: var(--tab-topics);
 }
 
 .page-title[data-section='archive'] {
@@ -1041,34 +1098,6 @@ a.category:hover {
   color: var(--text-title);
 }
 
-/* The section leads every list, in its tab's colour: no square, bolder, a separator after. */
-.category-section {
-  font-weight: 700;
-  color: var(--text-title);
-}
-
-.category-section[data-section='article'] {
-  color: var(--tab-article);
-}
-
-.category-section[data-section='dispatch'] {
-  color: var(--tab-dispatch);
-}
-
-.category-section[data-section='field-note'] {
-  color: var(--tab-field-note);
-}
-
-.category-section::before {
-  display: none;
-}
-
-.category-section::after {
-  content: '›';
-  margin-left: 0.5rem;
-  color: var(--text-muted);
-}
-
 /* ///////////////////////////////////////////// 8. ARCHIVE ////////////////////////////////////////////// */
 
 /* 8.1 FILTERS */
@@ -1078,40 +1107,6 @@ a.category:hover {
   gap: var(--space-xs);
   padding-bottom: var(--space-m);
   border-bottom: 1px solid var(--border-panel);
-}
-
-.filter-row {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.5rem;
-}
-
-.filter {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.5rem;
-  min-height: 2.75rem;
-  padding-inline: 0.9rem;
-  border: 1px solid var(--border-panel);
-  background: transparent;
-  color: var(--text-title);
-  font-family: var(--font-label);
-  font-weight: 600;
-  font-size: var(--fs-xs);
-  letter-spacing: 0.06em;
-  text-transform: uppercase;
-  cursor: pointer;
-}
-
-.filter:hover {
-  border-color: var(--text-title);
-}
-
-/* Inset shadow, not a thicker border, so pressing a filter doesn't shift the row. */
-.filter[aria-pressed='true'] {
-  border-color: var(--text-title);
-  box-shadow: inset 0 0 0 1px var(--text-title);
-  background: var(--bg-panel);
 }
 
 /* Category dropdown; the chosen category's square shows beside it. */
@@ -1228,7 +1223,7 @@ a.category:hover {
 
 .archive-entry a {
   display: grid;
-  grid-template-columns: 2.25rem 3.25rem minmax(0, 1fr) auto auto;
+  grid-template-columns: 2.25rem 3.25rem minmax(0, 1fr) auto;
   gap: 0.9rem;
   align-items: center;
   padding-block: 0.75rem;
@@ -1258,8 +1253,7 @@ a.category:hover {
 }
 
 .archive-cats,
-/* In its section's colour, so the archive scans by section as well as by category. */
-.archive-section {
+.archive-portfolio {
   font-family: var(--font-label);
   font-weight: 700;
   font-size: var(--fs-xs);
@@ -1268,16 +1262,9 @@ a.category:hover {
   color: var(--text-muted);
 }
 
-.archive-section[data-section='article'] {
-  color: var(--tab-article);
-}
-
-.archive-section[data-section='dispatch'] {
-  color: var(--tab-dispatch);
-}
-
-.archive-section[data-section='field-note'] {
-  color: var(--tab-field-note);
+.archive-portfolio {
+  margin-left: 0.9rem;
+  color: var(--tab-portfolio);
 }
 
 /* Phones: day, squares and title only; the filters still name what's shown. */
@@ -1286,8 +1273,59 @@ a.category:hover {
     grid-template-columns: 2.25rem 3.25rem minmax(0, 1fr);
   }
 
-  .archive-cats,
-  .archive-section {
+  .archive-cats {
     display: none;
   }
+}
+
+/* ///////////////////////////////////////////// 9. TOPICS ////////////////////////////////////////////// */
+
+/* Categories under their group headings, each with its post count. */
+
+.topic-group + .topic-group {
+  margin-top: var(--space-m);
+}
+
+.topic-group-title {
+  padding-bottom: var(--space-xs);
+  border-bottom: 1px solid var(--text-title);
+  font-family: var(--font-title);
+  font-size: var(--fs-xl);
+  font-weight: 700;
+  text-transform: uppercase;
+  color: var(--text-title);
+}
+
+.topic-list {
+  list-style: none;
+}
+
+.topic-list a {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding-block: 0.75rem;
+  border-bottom: 1px solid var(--border-panel);
+  color: var(--text-title);
+  font-weight: 800;
+  text-decoration: none;
+}
+
+.topic-list a:hover .topic-name {
+  color: var(--accent);
+}
+
+.topic-count {
+  margin-left: auto;
+  font-family: var(--font-label);
+  font-weight: 600;
+  font-size: var(--fs-xs);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+}
+
+/* Topics keeps its own colour in the breadcrumb, whichever category page it sits on. */
+.topic-intro a {
+  color: var(--tab-topics);
 }

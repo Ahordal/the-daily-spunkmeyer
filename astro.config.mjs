@@ -9,12 +9,12 @@ import sitemap from '@astrojs/sitemap';
 import notifyPortfolio from './integrations/notify-portfolio.mjs';
 import { readdirSync, readFileSync } from 'node:fs';
 
-// Field Notes' canonical copy is on the portfolio, so they stay out of this sitemap.
-// Section value mirrors src/utils/taxonomy.ts.
+// Portfolio posts' canonical copy is on alexhordal.ca, so they stay out of this sitemap.
+// Flag mirrors src/utils/portfolio.ts.
 const postsDir = new URL('./src/content/posts/', import.meta.url);
 const fieldNotePaths = readdirSync(postsDir)
   .filter((file) => file.endsWith('.mdoc'))
-  .filter((file) => /^section:\s*['"]?field-note['"]?\s*$/m.test(readFileSync(new URL(file, postsDir), 'utf8')))
+  .filter((file) => /^portfolio:\s*true\s*$/m.test(readFileSync(new URL(file, postsDir), 'utf8')))
   .map((file) => `/posts/${file.replace(/\.mdoc$/, '')}/`);
 
 // Canonical URLs, link previews, RSS and the sitemap are built from this.

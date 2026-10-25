@@ -1,7 +1,7 @@
 import rss from '@astrojs/rss';
 import type { APIContext } from 'astro';
 import { getPublishedPosts } from '../utils/posts';
-import { getSection, getCategories } from '../utils/taxonomy';
+import { getCategories } from '../utils/taxonomy';
 
 export async function GET(context: APIContext) {
   const posts = await getPublishedPosts();
@@ -14,8 +14,7 @@ export async function GET(context: APIContext) {
       description: post.data.summary ?? undefined,
       pubDate: post.data.publishedDate,
       link: `/posts/${post.id}/`,
-      // Section first, so feed readers can sort Articles, Dispatches and Field Notes apart.
-      categories: [getSection(post.data.section).singular, ...getCategories(post.data.categories).map((c) => c.label)],
+      categories: getCategories(post.data.categories).map((c) => c.label),
     })),
     customData: '<language>en-ca</language>',
   });

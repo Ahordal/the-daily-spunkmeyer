@@ -4,8 +4,8 @@ import { Image } from 'astro:assets';
 import Base from '../../layouts/Base.astro';
 import CategoryList from '../../components/CategoryList.astro';
 import { getPublishedPosts, getSerials, formatDate, formatSerial, linkHost, type Post } from '../../utils/posts';
-import { isFieldNote, portfolioUrl } from '../../utils/portfolio';
-import { getSection, getCategories } from '../../utils/taxonomy';
+import { isOnPortfolio, portfolioUrl } from '../../utils/portfolio';
+import { getCategories } from '../../utils/taxonomy';
 
 export async function getStaticPaths() {
   const posts = await getPublishedPosts();
@@ -17,12 +17,11 @@ interface Props {
 }
 
 const { post } = Astro.props;
-const { title, summary, link, cover, coverAlt, publishedDate, updatedDate, section, categories } = post.data;
+const { title, summary, link, cover, coverAlt, publishedDate, updatedDate, categories } = post.data;
 const { Content } = await render(post);
-const sectionInfo = getSection(section);
 const serial = (await getSerials()).get(post.id)!;
 const categoryLabels = getCategories(categories).map((c) => c.label);
-const canonical = isFieldNote(post) ? portfolioUrl(post) : undefined;
+const canonical = isOnPortfolio(post) ? portfolioUrl(post) : undefined;
 
 // Structured data so search engines read the post as an article.
 const jsonLd = {
@@ -34,7 +33,6 @@ const jsonLd = {
   ...(updatedDate && { dateModified: updatedDate.toISOString() }),
   author: { '@type': 'Person', name: 'Alex Hordal' },
   mainEntityOfPage: canonical ?? new URL(Astro.url.pathname, Astro.site).href,
-  articleSection: sectionInfo.label,
   keywords: categoryLabels.join(', ') || undefined,
 };
 ---
@@ -72,7 +70,14 @@ const jsonLd = {
           </p>
         )
       }
-      <CategoryList ids={categories} section={section} />
+      <CategoryList ids={categories} />
+      {
+        canonical && (
+          <p class="post-portfolio">
+            Also on <a href={canonical}>alexhordal.ca</a>
+          </p>
+        )
+      }
     </header>
     {
       cover && (
