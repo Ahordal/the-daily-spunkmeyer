@@ -141,7 +141,7 @@ summary:focus-visible,
   --gutter: 0.5rem;
 
   --font-body: 'Barlow Condensed', 'Arial Narrow', system-ui, -apple-system, 'Segoe UI', sans-serif;
-  --font-display: var(--font-body);
+  --font-display: 'Barlow', var(--font-body); /* card and in-post headlines, at 600 */
   --font-title: 'Barlow Condensed', 'Arial Narrow', var(--font-body);
   --font-label: var(--font-title);
   --font-mono: ui-monospace, 'Cascadia Mono', consolas, 'Courier New', monospace;
@@ -729,17 +729,54 @@ body {
 .post-list {
   list-style: none;
   display: grid;
+  gap: var(--space-s);
 }
 
+/* A hairline card with a light shadow, bordered in the post's first category colour (--card) with an
+   edge bar in all of them (--bar). Both are set per post; navy when it has none. */
 .post-item {
+  --bar-w: 6px;
+  position: relative;
   display: grid;
   gap: var(--space-s);
-  padding-block: var(--space-m);
+  padding: var(--space-s) var(--space-s) var(--space-s) calc(var(--space-s) + var(--bar-w));
+  border: 1px solid var(--card, var(--emblem-navy));
+  background: var(--bg);
+  box-shadow: 0 2px 6px rgb(11 14 28 / 0.08);
+}
+
+.post-item::before {
+  content: '';
+  position: absolute;
+  inset: -1px auto -1px -1px;
+  width: var(--bar-w);
+  background: var(--bar, var(--emblem-navy));
+}
+
+/* Serial and date on the left, categories on the right, ruled off from the story below. */
+.post-item-head {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  align-items: center;
+  gap: var(--space-xs);
+  padding-bottom: var(--space-xs);
   border-bottom: 1px solid var(--border-panel);
 }
 
-.post-item:first-child {
-  padding-top: 0;
+/* The bar already says it; the label is redundant in a card. */
+.post-item-head .filed-in {
+  display: none;
+}
+
+.post-item-read {
+  justify-self: end;
+  font-family: var(--font-label);
+  font-weight: 600;
+  font-size: var(--fs-xs);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  text-decoration: none;
 }
 
 /* Cover beside the text from tablet width up; stacked above it on phones. */
@@ -770,7 +807,7 @@ body {
 .post-item-title {
   font-family: var(--font-display);
   font-size: var(--fs-list-title);
-  font-weight: 800;
+  font-weight: 600;
   line-height: 1.15;
   text-wrap: balance;
 }
@@ -885,11 +922,13 @@ body {
   color: var(--text-muted);
 }
 
+/* Set like the page intro and meta labels, only larger, in sentence case and the title colour. */
 .post-title {
-  font-family: var(--font-display);
-  font-size: var(--fs-3xl);
-  font-weight: 900;
-  line-height: 1.05;
+  font-family: var(--font-label);
+  font-size: var(--fs-md);
+  font-weight: 600;
+  line-height: 1.2;
+  letter-spacing: 0.08em;
   color: var(--text-title);
   text-wrap: balance;
 }
@@ -953,7 +992,7 @@ body {
 .prose h2,
 .prose h3 {
   font-family: var(--font-display);
-  font-weight: 800;
+  font-weight: 600;
   line-height: 1.2;
   color: var(--text-title);
   text-wrap: balance;

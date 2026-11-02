@@ -2,6 +2,7 @@
 import { Image } from 'astro:assets';
 import CategoryList from './CategoryList.astro';
 import { formatDate, formatSerial, getSerials, linkHost, type Post } from '../utils/posts';
+import { getCategories } from '../utils/taxonomy';
 
 interface Props {
   posts: Post[];
@@ -11,6 +12,16 @@ interface Props {
 
 const { posts, lead = false } = Astro.props;
 const serials = await getSerials();
+
+/** The card's colours: its border in the first category's, and its edge bar in equal hard-stopped
+    bands of every category's, top to bottom. */
+function barFor(ids: Post['data']['categories']) {
+  const colors = getCategories(ids).map((c) => c.color);
+  if (colors.length === 0) return undefined;
+  const step = 100 / colors.length;
+  const bands = colors.map((c, i) => `${c} ${i * step}% ${(i + 1) * step}%`);
+  return `--card: ${colors[0]}; --bar: linear-gradient(${bands.join(', ')})`;
+}
 ---
 
 <ol class="post-list">
@@ -20,7 +31,7 @@ const serials = await getSerials();
       const href = `/posts/${post.id}/`;
       const isLead = lead && i === 0;
       return (
-        <li class:list={['post-item', { 'has-cover': cover, 'post-item-lead': isLead }]}>
+        <li class:list={['post-item', { 'has-cover': cover, 'post-item-lead': isLead }]} style={barFor(categories)}>
           {cover && (
             <a class="post-item-cover" href={href} tabindex="-1" aria-hidden="true">
               {isLead ? (
@@ -31,10 +42,13 @@ const serials = await getSerials();
             </a>
           )}
           <div class="post-item-body">
-            <p class="post-meta">
-              {formatSerial(serials.get(post.id)!)} //{' '}
-              <time datetime={publishedDate.toISOString()}>{formatDate(publishedDate)}</time>
-            </p>
+            <div class="post-item-head">
+              <p class="post-meta">
+                {formatSerial(serials.get(post.id)!)} //{' '}
+                <time datetime={publishedDate.toISOString()}>{formatDate(publishedDate)}</time>
+              </p>
+              <CategoryList ids={categories} />
+            </div>
             <h2 class="post-item-title">
               <a href={href}>{title}</a>
             </h2>
@@ -46,7 +60,9 @@ const serials = await getSerials();
                 </a>
               </p>
             )}
-            <CategoryList ids={categories} />
+            <a class="post-item-read" href={href} aria-label={`Read ${title}`}>
+              Read →
+            </a>
           </div>
         </li>
       );
