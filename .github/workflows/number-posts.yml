@@ -1,0 +1,30 @@
+# Gives each post a permanent issue number the first time it goes live (see scripts/number-posts.mjs).
+name: Number posts
+
+on:
+  push:
+    branches: [main]
+    paths: ['src/content/posts/**']
+
+permissions:
+  contents: write
+
+concurrency: number-posts
+
+jobs:
+  number:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - run: npm install --no-save yaml
+      - run: node scripts/number-posts.mjs
+      - name: Commit any new numbers
+        run: |
+          git diff --quiet && exit 0
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git commit -am 'Number new posts'
+          git push

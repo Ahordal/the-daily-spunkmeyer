@@ -12,6 +12,7 @@ const posts = defineCollection({
         title: z.string(),
         portfolio: z.boolean().default(false),
         publishedDate: z.coerce.date(),
+        issue: z.number().int().positive().optional().nullable(),
         updatedDate: z.coerce.date().optional().nullable(),
         summary: z.string().optional().nullable(),
         link: z.string().url().optional().nullable(),

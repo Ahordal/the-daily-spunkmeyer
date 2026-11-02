@@ -39,6 +39,12 @@ export default config({
           defaultValue: { kind: 'today' },
           validation: { isRequired: true },
         }),
+        issue: fields.integer({
+          label: 'Issue number',
+          description:
+            'Leave blank: filled in automatically the first time the post goes live, then fixed for good. Restarts at 1 each volume (year).',
+          validation: { min: 1 },
+        }),
         updatedDate: fields.date({
           label: 'Updated date',
           description: 'Optional. Set when a published post is meaningfully revised.',

@@ -51,20 +51,33 @@ export interface Serial {
 }
 
 /**
- * Each post's issue number, restarting at 1 every volume, in publish order.
- * Derived, not stored: back-dating or deleting a post renumbers the ones after it.
+ * Each post's issue number, restarting at 1 every volume.
+ * Stored in the post (`issue`) by .github/workflows/number-posts.yml the first time it goes live, so it
+ * never changes. A post published since that last ran gets the next free number in its volume for now,
+ * the same one the workflow will store. Two posts sharing a number in one volume fail the build.
  */
 export async function getSerials(): Promise<Map<string, Serial>> {
   const oldestFirst = [...(await getPublishedPosts())].sort(
     (a, b) => a.data.publishedDate.valueOf() - b.data.publishedDate.valueOf() || a.id.localeCompare(b.id),
   );
   const serials = new Map<string, Serial>();
-  const counts = new Map<number, number>();
-  for (const post of oldestFirst) {
-    const volume = volumeOf(post.data.publishedDate);
-    const number = (counts.get(volume) ?? 0) + 1;
-    counts.set(volume, number);
+  const taken = new Map<string, string>(); // "volume-number" -> post id
+  const highest = new Map<number, number>();
+  const claim = (post: Post, volume: number, number: number) => {
+    const key = `${volume}-${number}`;
+    const other = taken.get(key);
+    if (other) throw new Error(`Posts "${other}" and "${post.id}" both claim Vol. ${volume} · No. ${number}.`);
+    taken.set(key, post.id);
+    highest.set(volume, Math.max(highest.get(volume) ?? 0, number));
     serials.set(post.id, { volume, number });
+  };
+  for (const post of oldestFirst) {
+    if (post.data.issue) claim(post, volumeOf(post.data.publishedDate), post.data.issue);
+  }
+  for (const post of oldestFirst) {
+    if (post.data.issue) continue;
+    const volume = volumeOf(post.data.publishedDate);
+    claim(post, volume, (highest.get(volume) ?? 0) + 1);
   }
   return serials;
 }
