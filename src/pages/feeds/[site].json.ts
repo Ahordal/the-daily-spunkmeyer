@@ -3,17 +3,22 @@ import { getImage } from 'astro:assets';
 import { render } from 'astro:content';
 import { experimental_AstroContainer as AstroContainer } from 'astro/container';
 import { getPublishedPosts } from '../../utils/posts';
-import { isOnPortfolio, portfolioUrl } from '../../utils/portfolio';
+import { DESTINATIONS, destinationUrl, receives, type Destination } from '../../utils/destinations';
 import { getCategories } from '../../utils/taxonomy';
 
-// Read by alexhordal.ca at build time to publish Field Notes as its own /field_notes pages.
-// Changing this shape means updating the portfolio's src/utils/blog.ts too.
-export async function GET(context: APIContext) {
+// One feed per destination site, read at its build time to publish the posts as its own pages.
+// alexhordal.ca reads field-notes.json; changing this shape means updating the portfolio's src/utils/blog.ts too.
+export function getStaticPaths() {
+  return DESTINATIONS.map((destination) => ({ params: { site: destination.id }, props: { destination } }));
+}
+
+export async function GET(context: APIContext<{ destination: Destination }>) {
   const site = context.site!;
-  const posts = (await getPublishedPosts()).filter(isOnPortfolio);
+  const { destination } = context.props;
+  const posts = (await getPublishedPosts()).filter((post) => receives(destination, post.data));
   const container = await AstroContainer.create();
 
-  // The portfolio is another origin, so root-relative image paths must become absolute.
+  // The destination is another origin, so root-relative image paths must become absolute.
   const absolutize = (html: string) =>
     html
       .replace(/(src|href)="\/(?!\/)/g, `$1="${site.origin}/`)
@@ -34,7 +39,7 @@ export async function GET(context: APIContext) {
         title,
         summary: summary ?? '',
         link: link ?? null,
-        url: portfolioUrl(post),
+        url: destinationUrl(destination, post.id),
         blogUrl: new URL(`/posts/${post.id}/`, site).href,
         publishedDate: publishedDate.toISOString(),
         updatedDate: updatedDate?.toISOString() ?? null,
@@ -53,7 +58,7 @@ export async function GET(context: APIContext) {
   );
 
   const feed = {
-    title: 'The Daily Spunkmeyer: Field Notes',
+    title: destination.feedTitle,
     home: site.href,
     items,
   };

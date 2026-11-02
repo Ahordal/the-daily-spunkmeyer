@@ -16,6 +16,7 @@ export const CATEGORIES = [
   { id: 'gis-data', label: 'GIS & Data', color: '#13868a', group: 'mapping' },
   { id: 'web-maps', label: 'Web Maps', color: '#3a6fd8', group: 'mapping' },
   { id: 'dataviz', label: 'Data Visualization', color: '#e9a227', group: 'mapping' },
+  { id: 'ullr-maps', label: 'ULLR Maps', color: '#9e1f63', group: 'building' }, // ULLR logo; posts also go to ullrmaps.com
   { id: 'building-with-ai', label: 'Building with AI', color: '#6b4fa0', group: 'building' },
   { id: 'ui-design', label: 'UI Design', color: '#d6458b', group: 'building' },
   { id: 'ux', label: 'UX', color: '#45b5d6', group: 'building' },

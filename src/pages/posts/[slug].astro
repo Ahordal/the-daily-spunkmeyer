@@ -4,7 +4,7 @@ import { Image } from 'astro:assets';
 import Base from '../../layouts/Base.astro';
 import CategoryList from '../../components/CategoryList.astro';
 import { getPublishedPosts, getSerials, formatDate, formatSerial, linkHost, type Post } from '../../utils/posts';
-import { isOnPortfolio, portfolioUrl } from '../../utils/portfolio';
+import { canonicalDestination, destinationUrl } from '../../utils/destinations';
 import { getCategories } from '../../utils/taxonomy';
 
 export async function getStaticPaths() {
@@ -21,7 +21,8 @@ const { title, summary, link, cover, coverAlt, publishedDate, updatedDate, categ
 const { Content } = await render(post);
 const serial = (await getSerials()).get(post.id)!;
 const categoryLabels = getCategories(categories).map((c) => c.label);
-const canonical = isOnPortfolio(post) ? portfolioUrl(post) : undefined;
+const original = canonicalDestination(post.data);
+const canonical = original && destinationUrl(original, post.id);
 
 // Structured data so search engines read the post as an article.
 const jsonLd = {
@@ -72,9 +73,9 @@ const jsonLd = {
       }
       <CategoryList ids={categories} />
       {
-        canonical && (
+        original && (
           <p class="post-portfolio">
-            Also on <a href={canonical}>alexhordal.ca</a>
+            Also on <a href={canonical}>{original.label}</a>
           </p>
         )
       }

@@ -6,15 +6,22 @@ import markdoc from '@astrojs/markdoc';
 import keystatic from '@keystatic/astro';
 import vercel from '@astrojs/vercel';
 import sitemap from '@astrojs/sitemap';
-import notifyPortfolio from './integrations/notify-portfolio.mjs';
+import notifyDestinations from './integrations/notify-destinations.mjs';
+import { DESTINATIONS, canonicalDestination } from './src/utils/destinations';
 import { readdirSync, readFileSync } from 'node:fs';
+import { parse } from 'yaml';
 
-// Portfolio posts' canonical copy is on alexhordal.ca, so they stay out of this sitemap.
-// Flag mirrors src/utils/portfolio.ts.
+// Posts whose canonical copy is on another site stay out of this sitemap.
 const postsDir = new URL('./src/content/posts/', import.meta.url);
-const fieldNotePaths = readdirSync(postsDir)
+const elsewherePaths = readdirSync(postsDir)
   .filter((file) => file.endsWith('.mdoc'))
-  .filter((file) => /^portfolio:\s*true\s*$/m.test(readFileSync(new URL(file, postsDir), 'utf8')))
+  .filter((file) => {
+    const frontMatter = parse(readFileSync(new URL(file, postsDir), 'utf8').split(/^---$/m)[1] ?? '') ?? {};
+    return canonicalDestination({
+      portfolio: frontMatter.portfolio === true,
+      categories: frontMatter.categories ?? [],
+    });
+  })
   .map((file) => `/posts/${file.replace(/\.mdoc$/, '')}/`);
 
 // Canonical URLs, link previews, RSS and the sitemap are built from this.
@@ -31,8 +38,8 @@ export default defineConfig({
     markdoc(),
     keystatic(),
     sitemap({
-      filter: (page) => !page.includes('/keystatic') && !fieldNotePaths.some((path) => page.endsWith(path)),
+      filter: (page) => !page.includes('/keystatic') && !elsewherePaths.some((path) => page.endsWith(path)),
     }),
-    notifyPortfolio({ site }),
+    notifyDestinations({ site, destinations: DESTINATIONS }),
   ],
 });
